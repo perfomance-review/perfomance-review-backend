@@ -169,7 +169,7 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>${liquibase.version}</version>
                 <configuration>
-                    <propertyFile>${basedir}\src\main\resources\liquibase.properties</propertyFile>
+                    <propertyFile>${basedir}\config\service.properties</propertyFile>
                 </configuration>
             </plugin>
         </plugins>
