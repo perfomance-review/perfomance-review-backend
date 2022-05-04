@@ -1,3 +1,6 @@
+package ru.hh.performance_review;
+
+import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +20,9 @@ import java.util.Properties;
 @Import({
   NabTestConfig.class,
   NabHibernateCommonConfig.class,
-  NabHibernateTestBaseConfig.class,
-  CommonConfig.class
+  NabHibernateTestBaseConfig.class
 })
-public class AppTestConfig {
+public class DataBaseTestConfig {
 
   private static final String DB_SETTINGS_FILE_NAME = "db-settings-test.properties";
 
@@ -38,5 +40,15 @@ public class AppTestConfig {
         new ClassPathResource(DB_SETTINGS_FILE_NAME),
         new ClassPathResource(DB_SETTINGS_FILE_NAME + ".dev"));
     return properties;
+  }
+
+  @Bean
+  public SpringLiquibase liquibase(DataSource dataSource) {
+    SpringLiquibase liquibase = new SpringLiquibase();
+
+    liquibase.setDataSource(dataSource);
+    liquibase.setChangeLog("service/test-root-changelog.xml");
+
+    return liquibase;
   }
 }

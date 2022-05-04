@@ -10,7 +10,20 @@
 * в настройках поставить галочку: 
 File | Settings | Build, Execution, Deployment | Compiler | Annotation Processors  ->  [x] Enable annotation processing (performance-review-backend) 
 
-запуск: `mvn clean install exec:java`
+#####запуск:
+для запуска profile dev
+ `mvn clean install exec:java -P DEV`
+для запуска profile prod
+ `mvn clean install exec:java -P PROD`
+ 
+ если необходимо указать свои настройки к БД то необходимо добавить параметр:
+ * для логина: `-DdbUser=login_name`, где `login_name` - логин от вашей БД
+ * для пароля: `-DdbPass=passsword`, где `passsword` - пароль от вашей БД
+ * для хоста: `-DdbHost=host_name`, где `host_name` - хост от вашей БД
+ > если параметр не установлен, используется из проперти-файла `performance-review-backend/config/dev/service.properties`
+ > example `mvn clean install exec:java -P DEV -DdbUser=postgres -DdbPass=postgres -DdbHost=localhost` 
+ > example `mvn clean install exec:java -P PROD -DdbUser=postgres -DdbPass=postgres -DdbHost=localhost` 
+ > example `mvn clean install exec:java -P DEV -DdbUser=postgres -DdbHost=localhost` 
 
 ##### Добавление новых миграций в liquibase
 1). сделать копию существующей миграции  `20220425000000_create_schema.xml` , путь `performance-review-backend/src/main/liquibase/release_1.0.0/`

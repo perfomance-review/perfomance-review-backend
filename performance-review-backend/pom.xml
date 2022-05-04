@@ -9,11 +9,114 @@
     <packaging>jar</packaging>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <nab.version>4.22.20</nab.version>
         <liquibase.version>4.1.0</liquibase.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <lombok.version>1.18.24</lombok.version>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>PROD</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.0.0-M5</version>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <systemPropertyVariables>
+                                <encoding>UTF-8</encoding>
+                                <settingsDir>${basedir}/config/prod</settingsDir>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>settingsDir</key>
+                                    <value>config/prod</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <mainClass>ru.hh.performance_review.App</mainClass>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase.version}</version>
+                        <configuration>
+                            <propertyFile>${basedir}\config\prod\service.properties</propertyFile>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+        <profile>
+            <id>DEV</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.0.0-M5</version>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <systemPropertyVariables>
+                                <encoding>UTF-8</encoding>
+                                <settingsDir>${basedir}/config/dev</settingsDir>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>settingsDir</key>
+                                    <value>config/dev</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <mainClass>ru.hh.performance_review.App</mainClass>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <version>${liquibase.version}</version>
+                        <configuration>
+                            <propertyFile>${basedir}\config\dev\service.properties</propertyFile>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
+
 
     <repositories>
         <repository>
@@ -50,7 +153,7 @@
 
         <dependency>
             <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <artifactId>liquibase-maven-plugin</artifactId>
             <version>${liquibase.version}</version>
         </dependency>
 
@@ -129,48 +232,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <systemPropertyVariables>
-                        <encoding>UTF-8</encoding>
-                        <settingsDir>${basedir}/config</settingsDir>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>settingsDir</key>
-                            <value>config</value>
-                        </systemProperty>
-                    </systemProperties>
-                    <mainClass>ru.hh.performance_review.App</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-maven-plugin</artifactId>
-                <version>${liquibase.version}</version>
-                <configuration>
-                    <propertyFile>${basedir}\src\main\resources\liquibase.properties</propertyFile>
-                </configuration>
             </plugin>
         </plugins>
     </build>
