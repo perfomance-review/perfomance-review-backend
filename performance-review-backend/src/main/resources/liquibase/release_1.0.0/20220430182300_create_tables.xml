@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220430182300_create_tables.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220430182300" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+            CREATE TABLE IF NOT EXISTS competence (
+                competence_id UUID NOT NULL PRIMARY KEY,
+                text VARCHAR(25) NOT NULL UNIQUE,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS question (
+                question_id UUID NOT NULL PRIMARY KEY,
+                text TEXT NOT NULL UNIQUE,
+                competence_id UUID,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                foreign key (competence_id) references competence(competence_id)
+
+            );
+
+            CREATE TABLE IF NOT EXISTS users (
+                user_id UUID NOT NULL PRIMARY KEY,
+                email VARCHAR(50) NOT NULL UNIQUE,
+                password VARCHAR(50) NOT NULL,
+                first_name VARCHAR(25) NOT NULL,
+                second_name VARCHAR(25) NOT NULL,
+                middle_name VARCHAR(25),
+                position VARCHAR(50),
+                probation BOOLEAN,
+                role VARCHAR(25) NOT NULL,
+                link_photo VARCHAR(25),
+                lead_id UUID,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                foreign key (lead_id) references users(user_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS poll (
+                poll_id UUID NOT NULL PRIMARY KEY,
+                name VARCHAR(25) NOT NULL UNIQUE,
+                manager_id UUID NOT NULL,
+                deadline TIMESTAMP WITHOUT TIME ZONE,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                foreign key (manager_id) references users(user_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS content_of_poll (
+                id UUID NOT NULL PRIMARY KEY,
+                poll_id UUID NOT NULL,
+                question_id UUID NOT NULL,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                UNIQUE(poll_id, question_id),
+                foreign key (poll_id) references poll(poll_id),
+                foreign key (question_id) references question(question_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS respondents_of_poll (
+                id UUID NOT NULL PRIMARY KEY,
+                poll_id UUID NOT NULL,
+                respondent_id UUID NOT NULL,
+                status VARCHAR(25) NOT NULL,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                UNIQUE(poll_id, respondent_id),
+                foreign key (poll_id) references poll(poll_id),
+                foreign key (respondent_id) references users(user_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS excluded_respondents_of_poll (
+                id UUID NOT NULL PRIMARY KEY,
+                poll_id UUID NOT NULL,
+                respondent_id UUID NOT NULL,
+                excluded_id UUID,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                UNIQUE(poll_id, respondent_id, excluded_id),
+                foreign key (poll_id) references poll(poll_id),
+                foreign key (respondent_id) references users(user_id),
+                foreign key (excluded_id) references users(user_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS compare_pair (
+                pair_id UUID NOT NULL PRIMARY KEY,
+                poll_id UUID NOT NULL,
+                question_id UUID NOT NULL,
+                winner_id UUID NOT NULL,
+                looser_id UUID NOT NULL,
+                respondent_id UUID NOT NULL,
+                rec_create_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                rec_update_dttm TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                UNIQUE(poll_id, question_id, respondent_id),
+                foreign key (poll_id) references poll(poll_id),
+                foreign key (question_id) references question(question_id),
+                foreign key (respondent_id) references users(user_id),
+                foreign key (winner_id) references users(user_id),
+                foreign key (looser_id) references users(user_id)
+            );
+        </sql>
+        <rollback>
+            <sql>
+                DROP TABLE IF EXISTS content_of_poll;
+                DROP TABLE IF EXISTS respondents_of_poll;
+                DROP TABLE IF EXISTS excluded_respondents_of_poll;
+                DROP TABLE IF EXISTS compare_pair;
+                DROP TABLE IF EXISTS poll;
+                DROP TABLE IF EXISTS users;
+                DROP TABLE IF EXISTS question;
+                DROP TABLE IF EXISTS competence;
+            </sql>
+        </rollback>
+        <comment>
+            Create tables for performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>

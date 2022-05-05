@@ -2,6 +2,5 @@
 
 
   <include file="test_1.0.0/changelog.xml" relativeToChangelogFile="true"/>
-  <include file="../liquibase/release_1.0.0/20220425000000_create_schema.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
