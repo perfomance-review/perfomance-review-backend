@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220507162500_insert_base_questions.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220507162500" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+
+<!--            заполнение таблицы competence-->
+
+            INSERT INTO competence(competence_id, text, rec_create_dttm, rec_update_dttm) VALUES
+                (gen_random_uuid(), 'Профессионализм', current_date, current_date),
+                (gen_random_uuid(), 'Вовлеченность', current_date, current_date),
+                (gen_random_uuid(), 'Ответственность', current_date, current_date),
+                (gen_random_uuid(), 'Отзывчивость', current_date, current_date),
+                (gen_random_uuid(), 'Лидерство', current_date, current_date),
+                (gen_random_uuid(), 'Эффективность', current_date, current_date),
+                (gen_random_uuid(), 'Активность', current_date, current_date),
+                (gen_random_uuid(), 'Надежность', current_date, current_date),
+                (gen_random_uuid(), 'Коммуникативность', current_date, current_date),
+                (gen_random_uuid(), 'Командообразование', current_date, current_date);
+
+
+<!--            заполнение таблицы question-->
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто, на твой взгляд, лучше справляется со своими задачами?', competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Профессионализм';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто чаще других вовлекается в рабочие задачи и готов помогать другим?', competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Вовлеченность';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто более ответственно подходит к выполнению задач?', competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Ответственность';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто скорее отзовется на помощь коллегам?', competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Отзывчивость';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'К чьему мнению чаще прислушиваются?', competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Лидерство';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто наиболее эффективно использует имеющиеся ресурсы для решения рабочих задач?',
+                competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Эффективность';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто больше проявляет активность и инициативу в решении рабочих задач?',
+            competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Активность';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'На кого бы ты мог положится в трудную минуту и знал, что тебя не подведут?',
+            competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Надежность';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто быстрее и проще находит общий язык с другими?',
+            competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Коммуникативность';
+
+            INSERT INTO question(question_id, text, competence_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Кто наиболее командный игрок?',
+            competence_id, current_date, current_date
+            FROM competence WHERE competence.text = 'Командообразование';
+
+            INSERT INTO question(question_id, text, rec_create_dttm, rec_update_dttm) VALUES
+            (gen_random_uuid(), 'С кем бы скорее ты провел время вне работы?', current_date, current_date),
+            (gen_random_uuid(), 'С кем тебе комфортнее всего работать?', current_date, current_date);
+        </sql>
+        <rollback>
+            <sql>
+                DELETE FROM question;
+                DELETE FROM competence;
+            </sql>
+        </rollback>
+        <comment>
+            Insert competences and questions into performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>

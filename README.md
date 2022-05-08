@@ -40,3 +40,7 @@ File | Settings | Build, Execution, Deployment | Compiler | Annotation Processor
 2). Созданную миграцию помещаем в 'changelog.xml':
    >* важно соблюдать порядок добавления миграций, все новые миграции добавляем после существующих
    >* добавляем `<include file="имя_созданной_в_п.1_миграции.xml" relativeToChangelogFile="true"/>`
+
+##### Откат миграций в liquibase
+  `mvn liquibase:rollback "-Dliquibase.rollbackCount=3" -P DEV`
+где rollbackCount - количество changeSet, на которые хотим откатиться (1 файл - 1 changeSet)  
