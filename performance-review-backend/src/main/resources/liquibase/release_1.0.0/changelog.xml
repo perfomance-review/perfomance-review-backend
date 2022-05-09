@@ -3,4 +3,6 @@
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <include file="20220430182300_create_tables.xml" relativeToChangelogFile="true"/>
+    <include file="20220507162500_insert_base_questions.xml" relativeToChangelogFile="true"/>
+    <include file="20220507170000_insert_test_data.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

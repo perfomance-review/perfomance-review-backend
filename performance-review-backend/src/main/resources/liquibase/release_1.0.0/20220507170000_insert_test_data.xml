@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220507170000_insert_test_data.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220507170000" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+
+<!--            заполнение таблицы users-->
+
+<!--            Administrator-->
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, rec_create_dttm, rec_update_dttm)
+               VALUES (gen_random_uuid(), 'admin@email.ru', 'passwordadmin', 'Stepan', 'Adminov', 'ADMINISTRATOR', current_date, current_date);
+
+<!--            Manager-->
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'manager@email.ru', 'passwordman', 'Alex', 'Krutov', 'MANAGER', user_id, current_date, current_date
+            FROM users WHERE users.role = 'ADMINISTRATOR';
+
+<!--            Respondents-->
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user1@email.ru', 'passworduser1', 'Ivan', 'Logov', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user2@email.ru', 'passworduser2', 'Olga', 'Ivanova', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user3@email.ru', 'passworduser3', 'Igor', 'Tolin', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user4@email.ru', 'passworduser4', 'Irina', 'Rogova', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user5@email.ru', 'passworduser5', 'Anton', 'Ivleev', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+
+<!--            заполнение таблицы poll-->
+
+            INSERT INTO poll(poll_id, name, manager_id, deadline, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'poll #1', user_id, current_date + 7, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO poll(poll_id, name, manager_id, deadline, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'poll #2', user_id, current_date + 9, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO poll(poll_id, name, manager_id, deadline, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'poll #3', user_id, current_date + 10, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+
+<!--            заполнение таблицы content_of_poll-->
+
+<!--            poll #1-->
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #1' AND question.text = 'Кто, на твой взгляд, лучше справляется со своими задачами?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #1' AND question.text = 'Кто более ответственно подходит к выполнению задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #1' AND question.text = 'Кто больше проявляет активность и инициативу в решении рабочих задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #1' AND question.text = 'На кого бы ты мог положится в трудную минуту и знал, что тебя не подведут?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #1' AND question.text = 'Кто наиболее командный игрок?';
+
+<!--            poll #2-->
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #2' AND question.text = 'Кто чаще других вовлекается в рабочие задачи и готов помогать другим?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #2' AND question.text = 'Кто более ответственно подходит к выполнению задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #2' AND question.text = 'Кто скорее отзовется на помощь коллегам?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #2' AND question.text = 'К чьему мнению чаще прислушиваются?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #2' AND question.text = 'На кого бы ты мог положится в трудную минуту и знал, что тебя не подведут?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #2' AND question.text = 'С кем тебе комфортнее всего работать?';
+
+<!--            poll #3-->
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #3' AND question.text = 'К чьему мнению чаще прислушиваются?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #3' AND question.text = 'Кто наиболее командный игрок?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #3' AND question.text = 'С кем тебе комфортнее всего работать?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #3' AND question.text = 'Кто наиболее эффективно использует имеющиеся ресурсы для решения рабочих задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date
+            FROM poll, question
+            WHERE poll.name = 'poll #3' AND question.text = 'Кто быстрее и проще находит общий язык с другими?';
+
+
+<!--            заполнение таблицы respondents_of_poll-->
+
+            INSERT INTO respondents_of_poll(id, poll_id, respondent_id, status, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, user_id, 'OPEN', current_date, current_date
+            FROM poll, users
+            WHERE poll.name = 'poll #1' AND users.role = 'RESPONDENT';
+
+            INSERT INTO respondents_of_poll(id, poll_id, respondent_id, status, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, user_id, 'OPEN', current_date, current_date
+            FROM poll, users
+            WHERE poll.name = 'poll #2' AND users.role = 'RESPONDENT';
+
+            INSERT INTO respondents_of_poll(id, poll_id, respondent_id, status, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, user_id, 'OPEN', current_date, current_date
+            FROM poll, users
+            WHERE poll.name = 'poll #3' AND users.role = 'RESPONDENT';
+
+
+        </sql>
+        <rollback>
+            <sql>
+                DELETE FROM respondents_of_poll;
+                DELETE FROM content_of_poll;
+                DELETE FROM poll;
+                DELETE FROM users;
+            </sql>
+        </rollback>
+        <comment>
+            Insert test data into performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>
