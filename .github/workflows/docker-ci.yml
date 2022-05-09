@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Metadata
+        id: meta
         uses: docker/metadata-action@v3
         with:
           images:
