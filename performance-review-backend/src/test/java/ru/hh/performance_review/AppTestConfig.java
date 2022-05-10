@@ -6,6 +6,6 @@ import ru.hh.nab.testbase.NabTestConfig;
 import ru.hh.performance_review.config.CommonConfig;
 
 @Configuration
-@Import({CommonConfig.class, NabTestConfig.class})
+@Import({NabTestConfig.class, CommonConfig.class, DataBaseTestConfig.class})
 public class AppTestConfig {
 }

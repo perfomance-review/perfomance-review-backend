@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan("ru.hh.performance_review.service")
 @ComponentScan("ru.hh.performance_review.controller")
+@ComponentScan("ru.hh.performance_review.dao")
 public class ApplicationServiceConfig {
 
     @Bean(name = "objectMapper")

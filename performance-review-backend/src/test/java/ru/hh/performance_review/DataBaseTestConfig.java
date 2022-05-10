@@ -11,7 +11,6 @@ import ru.hh.nab.datasource.DataSourceFactory;
 import ru.hh.nab.hibernate.NabHibernateCommonConfig;
 import ru.hh.nab.testbase.NabTestConfig;
 import ru.hh.nab.testbase.hibernate.NabHibernateTestBaseConfig;
-import ru.hh.performance_review.config.CommonConfig;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -42,7 +41,7 @@ public class DataBaseTestConfig {
     return properties;
   }
 
-  @Bean
+
   public SpringLiquibase liquibase(DataSource dataSource) {
     SpringLiquibase liquibase = new SpringLiquibase();
 
