@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 
-@ContextConfiguration(classes = {AppTestConfig.class, DataBaseTestConfig.class})
+@ContextConfiguration(classes = {AppTestConfig.class})
 public class AppTest extends NabTestBase {
 
     @Override
