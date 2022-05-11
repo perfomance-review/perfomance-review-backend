@@ -7,7 +7,7 @@ import ru.hh.nab.hibernate.MappingConfig;
 import ru.hh.nab.starter.NabCommonConfig;
 
 @Configuration
-@Import({NabCommonConfig.class, ApplicationServiceConfig.class, LogbackConfigurator.class})
+@Import({NabCommonConfig.class, ApplicationServiceConfig.class})
 public class CommonConfig {
 
     @Bean

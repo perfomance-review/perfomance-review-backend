@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import ru.hh.performance_review.model.base.AbstractAuditableBaseEntity;
 
 import javax.persistence.*;
@@ -12,13 +13,13 @@ import java.util.UUID;
 /**
  * Вопросы
  */
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "question", schema = "performance_review")
+@Accessors(chain = true)
 public class Question extends AbstractAuditableBaseEntity {
 
     /**

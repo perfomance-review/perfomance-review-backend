@@ -10,7 +10,7 @@
                context="schema" runOnChange="true">
         <sql>
             CREATE SCHEMA IF NOT EXISTS performance_review;
-            SET search_path TO performance_review;
+<!--            SET search_path TO performance_review;-->
         </sql>
 
         <comment>

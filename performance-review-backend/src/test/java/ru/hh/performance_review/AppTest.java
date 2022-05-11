@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 
-@ContextConfiguration(classes = {AppTestConfig.class, DataBaseTestConfig.class})
+@ContextConfiguration(classes = {AppTestConfig.class})
 public class AppTest extends NabTestBase {
 
     @Override
@@ -24,22 +24,12 @@ public class AppTest extends NabTestBase {
 
     @Test
     public void checkEvenNumber_success() {
-        for (int i = 1; i < 11; i++) {
-            String url = String.format("/checkevennumber/%s", i);
-            Response response = createRequest(url)
-                    .buildGet()
-                    .invoke();
-
-            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        }
-    }
-
-    @Test
-    public void checkEvenNumber_negative() {
-        Response response = createRequest("/checkevennumber/-1")
+        String url = "/checkevennumber/10";
+        Response response = createRequest(url)
                 .buildGet()
                 .invoke();
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
+
 }
