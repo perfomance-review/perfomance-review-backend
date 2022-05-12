@@ -35,7 +35,7 @@ public class PollController {
     1. Если аутентификация уже выполнена - передать в pollService информацию о пользователе: id
      */
         try {
-            String id = "userId";
+            String id = "06fb8381-1a19-47d4-99ea-ed6209ca0e22";
             final List<GetPollResponseDto> polls = pollService.getPolls(id);
             String response = objectMapper.writeValueAsString(polls);
             log.info("Ответ на запрос:{}", response);
