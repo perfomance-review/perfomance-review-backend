@@ -15,6 +15,8 @@ COPY --from=build \
 CMD java \
     -DsettingsDir=./ \
     -DP=PROD \
-    -DdbHost=postgres \
+    -DdbHost=${PG_HOST} \
+    -DdbUser=${PG_USER} \
+    -DdbPass=${PG_PASSWORD} \
     -jar performance-review-backend.jar
 
