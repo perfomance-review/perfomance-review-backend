@@ -62,7 +62,7 @@ public class User extends AbstractAuditableBaseEntity {
      * признак испытательного срока
      */
     @Column(name = "probation")
-    private boolean probation;
+    private Boolean probation;
 
     /**
      * ссылка на фото пользователя

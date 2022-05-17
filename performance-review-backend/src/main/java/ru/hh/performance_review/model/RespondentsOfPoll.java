@@ -48,7 +48,8 @@ public class RespondentsOfPoll extends AbstractAuditableBaseEntity {
      * статус опроса
      */
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PollStatus status;
 
 
 
