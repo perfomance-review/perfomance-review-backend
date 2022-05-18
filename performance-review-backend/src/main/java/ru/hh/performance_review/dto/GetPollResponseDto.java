@@ -7,12 +7,14 @@ import lombok.experimental.Accessors;
 import ru.hh.performance_review.model.PollStatus;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
 @Setter
 @Accessors(chain = true)
 public class GetPollResponseDto {
+  private UUID pollId;
   private String title;
   private LocalDate deadline;
   private long questionsCount;
