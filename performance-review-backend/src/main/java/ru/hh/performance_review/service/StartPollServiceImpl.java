@@ -34,6 +34,10 @@ public class StartPollServiceImpl implements StartPollService{
     @Transactional
     public void saveExcluded(String pollId, String userId, List<String> includedIdsString) {
 
+        if (includedIdsString == null) {
+            return;
+        }
+
         List<UUID> includedIds = includedIdsString.stream()
                 .map(UUID::fromString)
                 .collect(Collectors.toList());

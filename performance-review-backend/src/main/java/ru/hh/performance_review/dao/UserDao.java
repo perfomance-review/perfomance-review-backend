@@ -8,10 +8,7 @@ import ru.hh.performance_review.model.User;
 
 import java.util.List;
 import java.util.UUID;
-import ru.hh.performance_review.model.RespondentsOfPoll;
-import ru.hh.performance_review.model.User;
 
-import java.util.List;
 
 @Repository
 public class UserDao extends CommonDao {
@@ -24,7 +21,7 @@ public class UserDao extends CommonDao {
         return getSession().createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
-    public List<User> getExcluded(List<UUID> participantsIds, UUID currentUserId) {
+    public List<User> getExcluded(List<UUID> includedIds, UUID currentUserId) {
 
         return getSession().createQuery("SELECT u " +
                                            "FROM User u " +
@@ -32,7 +29,7 @@ public class UserDao extends CommonDao {
                         "                      AND u.id not in (:paramParticipantsIds)", User.class )
                 .setParameter("paramRole", RoleEnum.RESPONDENT)
                 .setParameter("paramCurrentUser" , currentUserId)
-                .setParameterList("paramParticipantsIds", participantsIds)
+                .setParameterList("paramParticipantsIds", includedIds)
                 .getResultList();
     }
 }

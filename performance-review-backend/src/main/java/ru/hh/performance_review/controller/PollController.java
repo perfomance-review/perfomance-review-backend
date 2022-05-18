@@ -11,11 +11,7 @@ import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.StartPollService;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -64,7 +60,7 @@ public class PollController {
     public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam("user-id") String userId, @RequestBody List<String> includedIds) {
         try {
             log.info("userId:{}", userId);
-            userId = Optional.ofNullable(userId).orElse("c44e9652-2d85-4277-81e3-a1f39047a566");
+            userId = Optional.ofNullable(userId).orElse("00000000-0000-0000-0000-000000000001");
             startPollService.changeStatusPoll(pollId, userId, PollStatus.PROGRESS);
             startPollService.saveExcluded(pollId, userId, includedIds);
             return Response.ok().build();

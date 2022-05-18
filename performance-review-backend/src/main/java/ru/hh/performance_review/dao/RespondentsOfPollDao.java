@@ -6,7 +6,6 @@ import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.Poll;
 import ru.hh.performance_review.model.RespondentsOfPoll;
 import ru.hh.performance_review.model.User;
-import ru.hh.performance_review.model.RespondentsOfPoll;
 
 import java.util.List;
 
