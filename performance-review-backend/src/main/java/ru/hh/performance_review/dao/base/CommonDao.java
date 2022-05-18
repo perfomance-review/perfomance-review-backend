@@ -36,6 +36,7 @@ public class CommonDao {
         if (baseEntity == null) {
             return;
         }
+        baseEntity.performPrePersistAudit();
         getSession().save(baseEntity);
     }
 
@@ -44,6 +45,7 @@ public class CommonDao {
         if (baseEntity == null) {
             return;
         }
+        baseEntity.performPreUpdateAudit();
         getSession().update(baseEntity);
     }
 
@@ -60,6 +62,7 @@ public class CommonDao {
         if (baseEntity == null) {
             return;
         }
+        baseEntity.performPrePersistAudit();
         getSession().persist(baseEntity);
     }
 
@@ -68,6 +71,7 @@ public class CommonDao {
         if (baseEntity == null) {
             return;
         }
+        baseEntity.performPreUpdateAudit();
         getSession().saveOrUpdate(baseEntity);
     }
 
