@@ -26,7 +26,7 @@ public class CommonDao {
         return sessionFactory.getCurrentSession();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public <T> T getByID(Class<T> clazz, Serializable id) {
         return getSession().get(clazz, id);
     }
