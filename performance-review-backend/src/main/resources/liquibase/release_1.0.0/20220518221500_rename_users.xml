@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220518221500_rename_users.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220518221500" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+<!--            переименование респондентов-->
+
+            UPDATE users
+            SET first_name = 'Ивона', second_name = 'Фокина'
+            WHERE users.email = 'user1@email.ru';
+
+            UPDATE users
+            SET first_name = 'Илларион', second_name = 'Аксенов'
+            WHERE users.email = 'user2@email.ru';
+
+            UPDATE users
+            SET first_name = 'Патрисия', second_name = 'Воронцова'
+            WHERE users.email = 'user3@email.ru';
+
+            UPDATE users
+            SET first_name = 'Ольга', second_name = 'Орлова'
+            WHERE users.email = 'user4@email.ru';
+
+            UPDATE users
+            SET first_name = 'Павел', second_name = 'Логинов'
+            WHERE users.email = 'user5@email.ru';
+
+        </sql>
+        <rollback>
+            <sql>
+
+            </sql>
+        </rollback>
+        <comment>
+            Rename test users into performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>
