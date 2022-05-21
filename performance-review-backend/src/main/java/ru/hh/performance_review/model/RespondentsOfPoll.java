@@ -52,7 +52,4 @@ public class RespondentsOfPoll extends AbstractAuditableBaseEntity {
     private PollStatus status;
 
 
-
-
-
 }
