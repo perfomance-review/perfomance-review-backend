@@ -7,4 +7,6 @@
     <include file="20220507170000_insert_test_data.xml" relativeToChangelogFile="true"/>
     <include file="20220518221500_rename_users.xml" relativeToChangelogFile="true"/>
     <include file="20220518232900_insert_add_users.xml" relativeToChangelogFile="true"/>
+    <include file="20220520232900_update_tables.xml" relativeToChangelogFile="true"/>
+    <include file="20220521153000_insert_order_into_content_of_poll.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
