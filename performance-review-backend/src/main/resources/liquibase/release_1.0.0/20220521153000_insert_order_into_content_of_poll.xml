@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220521153000_insert_order_into_content_of_poll.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220521153000" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+
+<!--            poll #1-->
+
+            UPDATE content_of_poll
+            SET q_order = 1
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #1'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто, на твой взгляд, лучше справляется со своими задачами?');
+
+            UPDATE content_of_poll
+            SET q_order = 2
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #1'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто более ответственно подходит к выполнению задач?');
+
+            UPDATE content_of_poll
+            SET q_order = 3
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #1'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто больше проявляет активность и инициативу в решении рабочих задач?');
+
+            UPDATE content_of_poll
+            SET q_order = 4
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #1'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                AND question.text = 'На кого бы ты мог положится в трудную минуту и знал, что тебя не подведут?');
+
+            UPDATE content_of_poll
+            SET q_order = 5
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #1'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто наиболее командный игрок?');
+
+<!--            poll #2-->
+
+            UPDATE content_of_poll
+            SET q_order = 1
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #2'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто чаще других вовлекается в рабочие задачи и готов помогать другим?');
+
+            UPDATE content_of_poll
+            SET q_order = 2
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #2'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                   AND question.text = 'Кто более ответственно подходит к выполнению задач?');
+
+            UPDATE content_of_poll
+            SET q_order = 3
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #2'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                     AND question.text = 'Кто скорее отзовется на помощь коллегам?');
+
+            UPDATE content_of_poll
+            SET q_order = 4
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #2'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'К чьему мнению чаще прислушиваются?');
+
+            UPDATE content_of_poll
+            SET q_order = 5
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #2'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'На кого бы ты мог положится в трудную минуту и знал, что тебя не подведут?');
+
+            UPDATE content_of_poll
+            SET q_order = 6
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #2'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'С кем тебе комфортнее всего работать?');
+
+<!--            poll #3-->
+
+            UPDATE content_of_poll
+            SET q_order = 1
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #3'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'К чьему мнению чаще прислушиваются?');
+
+            UPDATE content_of_poll
+            SET q_order = 2
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #3'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто наиболее командный игрок?');
+
+            UPDATE content_of_poll
+            SET q_order = 3
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #3'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'С кем тебе комфортнее всего работать?');
+
+            UPDATE content_of_poll
+            SET q_order = 4
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #3'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто наиболее эффективно использует имеющиеся ресурсы для решения рабочих задач?');
+
+            UPDATE content_of_poll
+            SET q_order = 5
+            WHERE content_of_poll.id =(SELECT content_of_poll.id
+                FROM content_of_poll
+                INNER JOIN poll ON content_of_poll.poll_id = poll.poll_id AND poll.name = 'poll #3'
+                INNER JOIN question ON content_of_poll.question_id = question.question_id
+                    AND question.text = 'Кто быстрее и проще находит общий язык с другими?');
+
+        </sql>
+        <rollback>
+            <sql>
+
+            </sql>
+        </rollback>
+        <comment>
+            Insert order into content_of_poll
+        </comment>
+    </changeSet>
+</databaseChangeLog>
