@@ -7,9 +7,9 @@ import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.*;
+
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -22,9 +22,9 @@ public class StartPollServiceImpl implements StartPollService{
 
     @Override
     @Transactional
-    public void changeStatusPoll(String pollId, String userId, PollStatus status) {
-        Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
-        User user = commonDao.getByID(User.class, UUID.fromString(userId));
+    public void changeStatusPoll(UUID pollId, UUID userId, PollStatus status) {
+        Poll poll = commonDao.getByID(Poll.class, pollId);
+        User user = commonDao.getByID(User.class, userId);
         RespondentsOfPoll respondentsOfPoll = respondentsOfPollDao.getRespondentsOfPoll(poll, user);
         respondentsOfPoll.setStatus(status);
         commonDao.update(respondentsOfPoll);
@@ -32,20 +32,12 @@ public class StartPollServiceImpl implements StartPollService{
 
     @Override
     @Transactional
-    public void saveExcluded(String pollId, String userId, List<String> includedIdsString) {
+    public void saveExcluded(UUID pollId, UUID userId, List<UUID> includedIds) {
 
-        if (includedIdsString == null) {
-            return;
-        }
+        Poll poll = commonDao.getByID(Poll.class,pollId);
+        User currentUser = commonDao.getByID(User.class, userId);
 
-        List<UUID> includedIds = includedIdsString.stream()
-                .map(UUID::fromString)
-                .collect(Collectors.toList());
-
-        Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
-        User currentUser = commonDao.getByID(User.class, UUID.fromString(userId));
-
-        userDao.getExcluded(includedIds, UUID.fromString(userId)).stream()
+        userDao.getExcluded(includedIds, userId).stream()
                 .map(o -> new ExcludedRespondentsOfPoll(UUID.randomUUID(), poll, currentUser, o))
                 .forEach(commonDao::save);
     }

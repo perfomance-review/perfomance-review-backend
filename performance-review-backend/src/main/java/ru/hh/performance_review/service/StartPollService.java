@@ -3,11 +3,21 @@ package ru.hh.performance_review.service;
 import ru.hh.performance_review.model.PollStatus;
 
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * Сервис начала опроса
+ */
 public interface StartPollService {
 
-    void changeStatusPoll(String pollId, String userId, PollStatus status);
+    /**
+     * Метод изменяет статус опроса на PROGRESS
+     */
+    void changeStatusPoll(UUID pollId, UUID userId, PollStatus status);
 
-    void saveExcluded(String pollId, String userId, List<String> includedIdsString);
+    /**
+     * Метод сохраняет в БД респондентов, которых исключили из опроса
+     */
+    void saveExcluded(UUID pollId, UUID userId, List<UUID> includedIds);
 
 }
