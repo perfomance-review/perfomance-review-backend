@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220518232900_insert_add_users.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220518232900" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+<!--            добавили 3 пользователей-->
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT '00000000-0000-0000-0000-000000000001', 'user6@email.ru', 'passworduser6', 'Матвей', 'Одинцов', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user7@email.ru', 'passworduser7', 'Давид', 'Блинов', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO users(user_id, email, password, first_name, second_name, role, lead_id, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'user8@email.ru', 'passworduser8', 'Жанна', 'Гаврилова', 'RESPONDENT', user_id, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            <!--            заполнение таблицы respondents_of_poll-->
+
+            INSERT INTO respondents_of_poll(id, poll_id, respondent_id, status, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, user_id, 'OPEN', current_date, current_date
+            FROM poll, users
+            WHERE poll.name in  ('poll #1', 'poll #2', 'poll #3') AND users.email in ('user6@email.ru', 'user7@email.ru', 'user8@email.ru');
+
+        </sql>
+        <rollback>
+            <sql>
+
+            </sql>
+        </rollback>
+        <comment>
+            Insert add test users into performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>

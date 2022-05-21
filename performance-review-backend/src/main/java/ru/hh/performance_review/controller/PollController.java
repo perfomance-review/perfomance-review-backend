@@ -5,15 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
+import ru.hh.performance_review.controller.base.Cookie;
+import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.hh.performance_review.dto.GetPollResponseDto;
+import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.UserService;
+import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
+import ru.hh.performance_review.service.validate.UserValidateService;
 import ru.hh.performance_review.service.StartPollService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +35,8 @@ public class PollController {
     private final PollService pollService;
     private final ObjectMapper objectMapper;
     private final UserService userService;
+    private final UserValidateService userValidateService;
+    private final ObjectConvertService objectConvertService;
     private final StartPollService startPollService;
     private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
 
@@ -84,5 +92,25 @@ public class PollController {
 
 
 
+
+
+    /**
+     * endpoint получения данных о пользователи по идентификатору пользователя
+     *
+     * @param userId - идентификатор пользователя
+     * @return - ДТО с информацией о пользователе
+     */
+    @GET
+    @Path("getuser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUser(@CookieParam("user-id") String userId) {
+        log.info("Получен запрос /getuser");
+        NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
+        return new HttpRequestHandler<String, UserResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> userService.getRespondentByUserId(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
 }
 

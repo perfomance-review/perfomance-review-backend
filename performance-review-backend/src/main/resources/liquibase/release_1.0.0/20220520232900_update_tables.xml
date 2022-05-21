@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220520232900_update_tables.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220520232900" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+<!--            в таблицу content_of_poll добавляем колонку order-->
+
+            ALTER TABLE IF EXISTS content_of_poll ADD COLUMN q_order INTEGER;
+
+<!--            в таблице compare_pair: добавляем колонки person1, person2-->
+<!--                                    удаляем колонку looser_id-->
+
+            ALTER TABLE IF EXISTS compare_pair ADD COLUMN person1_id UUID NOT NULL references users(user_id);
+            ALTER TABLE IF EXISTS compare_pair ADD COLUMN person2_id UUID NOT NULL references users(user_id);
+            ALTER TABLE IF EXISTS compare_pair DROP COLUMN looser_id;
+
+        </sql>
+        <rollback>
+            <sql>
+
+            </sql>
+        </rollback>
+        <comment>
+            Update tables content_of_poll and compare_pair into performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>

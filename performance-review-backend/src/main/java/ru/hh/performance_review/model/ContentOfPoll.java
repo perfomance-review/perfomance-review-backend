@@ -45,4 +45,10 @@ public class ContentOfPoll extends AbstractAuditableBaseEntity {
     @JoinColumn(name = "question_id")
     private Question question;
 
+    /**
+     * порядковый номер вопроса
+     */
+    @Column(name = "q_order")
+    private Integer order;
+
 }

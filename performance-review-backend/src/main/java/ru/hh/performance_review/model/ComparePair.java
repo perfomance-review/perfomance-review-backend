@@ -47,11 +47,17 @@ public class ComparePair extends AbstractAuditableBaseEntity {
     @JoinColumn(name = "winner_id")
     private User winner;
     /**
-     * id проигравшего
+     * id 1 участника
      */
     @ManyToOne
-    @JoinColumn(name = "looser_id")
-    private User looser;
+    @JoinColumn(name = "person1_id")
+    private User person1;
+    /**
+     * id 2 участника
+     */
+    @ManyToOne
+    @JoinColumn(name = "person2_id")
+    private User person2;
     /**
      * id респондента
      */
