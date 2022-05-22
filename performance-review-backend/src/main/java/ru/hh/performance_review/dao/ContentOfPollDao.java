@@ -6,6 +6,7 @@ import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.ContentOfPoll;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class ContentOfPollDao extends CommonDao {
@@ -15,5 +16,13 @@ public class ContentOfPollDao extends CommonDao {
 
     public List<ContentOfPoll> getAll() {
         return getSession().createQuery("SELECT c FROM ContentOfPoll c", ContentOfPoll.class).getResultList();
+    }
+
+    public List<ContentOfPoll> getByPollId(UUID pollId) {
+        return getSession().createQuery("SELECT c " +
+                "FROM ContentOfPoll c " +
+                "WHERE c.poll.pollId = :pollId", ContentOfPoll.class)
+            .setParameter("pollId", pollId)
+            .getResultList();
     }
 }
