@@ -1,6 +1,7 @@
 package ru.hh.performance_review.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.bind.v2.TODO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -69,18 +70,20 @@ public class PollController {
     @POST
     @Path(value = "/start/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam("user-id") String userId, @RequestBody List<String> includedIdsString) {
         try {
-            log.info("userId:{}", userId);
+            log.info("Получен запрос start/" + pollId);
             userId = Optional.ofNullable(userId).orElse(defaultUserId);
+            NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
             startPollService.changeStatusPoll(UUID.fromString(pollId), UUID.fromString(userId), PollStatus.PROGRESS);
             if (!CollectionUtils.isEmpty(includedIdsString)) {
                 List<UUID> includedIds = includedIdsString.stream()
                         .map(UUID::fromString)
                         .collect(Collectors.toList());
                 startPollService.saveExcluded(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
+                startPollService.saveComparePair(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
             }
+            // TODO: 22.05.2022 формирование и запись всех пар для опроса
             return Response.ok().build();
         } catch (Exception e) {
             String errorMsg = String.format("Ошибка обработки запроса /start/{poll_id} %s", e.getLocalizedMessage());
@@ -90,11 +93,7 @@ public class PollController {
         }
     }
 
-
-
-
-
-    /**
+   /**
      * endpoint получения данных о пользователи по идентификатору пользователя
      *
      * @param userId - идентификатор пользователя

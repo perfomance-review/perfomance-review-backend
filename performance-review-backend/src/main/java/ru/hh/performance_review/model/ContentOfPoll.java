@@ -34,14 +34,14 @@ public class ContentOfPoll extends AbstractAuditableBaseEntity {
     /**
      * id опроса
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "poll_id")
     private Poll poll;
 
     /**
      * id вопроса
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private Question question;
 

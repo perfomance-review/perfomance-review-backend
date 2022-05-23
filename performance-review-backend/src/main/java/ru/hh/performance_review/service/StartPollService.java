@@ -20,4 +20,10 @@ public interface StartPollService {
      */
     void saveExcluded(UUID pollId, UUID userId, List<UUID> includedIds);
 
+    /**
+     * Метод сохраняет в таблице compare_pair все возможные сочетания респондентов по всем вопросам
+     * для данного пользователя и данного опроса
+     */
+    void saveComparePair(UUID pollId, UUID userId, List<UUID> includedIds);
+
 }

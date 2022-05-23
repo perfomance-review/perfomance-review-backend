@@ -32,4 +32,13 @@ public class UserDao extends CommonDao {
                 .setParameterList("paramParticipantsIds", includedIds)
                 .getResultList();
     }
+
+    public List<User> getIncluded(List<UUID> includedIds) {
+
+        return getSession().createQuery("SELECT u " +
+                                                  "FROM User u " +
+                                                  "WHERE u.id in (:paramParticipantsIds)", User.class )
+                .setParameterList("paramParticipantsIds", includedIds)
+                .getResultList();
+    }
 }
