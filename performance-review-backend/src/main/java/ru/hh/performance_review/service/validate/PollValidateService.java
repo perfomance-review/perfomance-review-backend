@@ -6,9 +6,10 @@ package ru.hh.performance_review.service.validate;
 public interface PollValidateService {
 
     /**
-     * Валидация pollId
+     * Валидация userId, pollId
      *
-     * @param pollId - идентификатор пользователя
+     * @param userId - идентификатор пользователя
+     * @param pollId - идентификатор опроса
      */
-    void pollIdValidate(String pollId);
+    void getPollByIdValidate(String userId, String pollId);
 }

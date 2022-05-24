@@ -126,8 +126,7 @@ public class PollController {
         log.info("Получен запрос pools/" + pollId);
         NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
         return new HttpRequestHandler<String, PollByIdResponseDto>()
-            .validate(v -> userValidateService.userIdValidate(userId))
-            .validate(v -> pollValidateService.pollIdValidate(pollId))
+            .validate(v -> pollValidateService.getPollByIdValidate(userId, pollId))
             .process(x -> pollService.getPollById(pollId))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
