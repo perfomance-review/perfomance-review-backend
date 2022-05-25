@@ -4,13 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.hh.performance_review.service.validate.utils.Utils;
 
-
 @Slf4j
 @Service
-public class UserValidateServiceImpl implements UserValidateService {
+public class PollValidateServiceImpl implements PollValidateService {
 
     @Override
-    public void userIdValidate(String userId) {
+    public void getPollByIdValidate(String userId, String pollId) {
         Utils.validateUuidAsString(userId, "userId");
+        Utils.validateUuidAsString(pollId, "poolId");
     }
 }

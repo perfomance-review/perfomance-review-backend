@@ -9,10 +9,12 @@ import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.hh.performance_review.dto.GetPollResponseDto;
 import ru.hh.performance_review.dto.response.EmptyDtoResponse;
+import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
+import ru.hh.performance_review.service.validate.PollValidateService;
 import ru.hh.performance_review.service.validate.UserValidateService;
 import ru.hh.performance_review.service.StartPollService;
 
@@ -22,6 +24,8 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -33,6 +37,7 @@ public class PollController {
     private final ObjectMapper objectMapper;
     private final UserService userService;
     private final UserValidateService userValidateService;
+    private final PollValidateService pollValidateService;
     private final ObjectConvertService objectConvertService;
     private final StartPollService startPollService;
     private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
@@ -99,6 +104,26 @@ public class PollController {
     }
 
    /**
+        try {
+            log.info("userId:{}", userId);
+            userId = Optional.ofNullable(userId).orElse(defaultUserId);
+            startPollService.changeStatusPoll(UUID.fromString(pollId), UUID.fromString(userId), PollStatus.PROGRESS);
+            if (!CollectionUtils.isEmpty(includedIdsString)) {
+                List<UUID> includedIds = includedIdsString.stream()
+                        .map(UUID::fromString)
+                        .collect(Collectors.toList());
+                startPollService.saveExcluded(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
+            }
+            return Response.ok().build();
+        } catch (Exception e) {
+            String errorMsg = String.format("Ошибка обработки запроса /start/{poll_id} %s", e.getLocalizedMessage());
+            log.error(errorMsg);
+            log.error("", e);
+            return Response.serverError().build();
+        }
+    }
+
+    /**
      * endpoint получения данных о пользователи по идентификатору пользователя
      *
      * @param userId - идентификатор пользователя
@@ -116,5 +141,26 @@ public class PollController {
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }
+
+    /**
+     * endpoint получения данных об опросе по идентификатору опроса
+     *
+     * @param userId - идентификатор пользователя
+     * @param pollId - идентификатор опроса
+     * @return - ДТО с информацией об опросе
+     */
+    @GET
+    @Path("polls/{poll_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPoolById(@CookieParam("user-id") String userId, @PathParam("poll_id") String pollId) {
+        log.info("Получен запрос pools/" + pollId);
+        NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
+        return new HttpRequestHandler<String, PollByIdResponseDto>()
+            .validate(v -> pollValidateService.getPollByIdValidate(userId, pollId))
+            .process(x -> pollService.getPollById(pollId))
+            .convert(objectConvertService::convertToJson)
+            .forArgument(userId, cookie);
+    }
+
 }
 
