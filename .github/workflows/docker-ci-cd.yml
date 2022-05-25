@@ -37,6 +37,19 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.GIT_REPO }}
+            docker-compose stop pr-back
+            docker-compose rm -f pr-back
+            docker-compose pull pr-back
+            docker-compose up -d pr-back
+
 
 
 
