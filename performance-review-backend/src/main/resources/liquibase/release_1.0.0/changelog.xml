@@ -9,5 +9,5 @@
     <include file="20220518232900_insert_add_users.xml" relativeToChangelogFile="true"/>
     <include file="20220520232900_update_tables.xml" relativeToChangelogFile="true"/>
     <include file="20220521153000_insert_order_into_content_of_poll.xml" relativeToChangelogFile="true"/>
-    <include file="20220522122800_delete_constraint_compare_pair.xml" relativeToChangelogFile="true"/>
+    <include file="20220522122800_change_constraint_compare_pair.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

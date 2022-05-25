@@ -1,17 +1,15 @@
 package ru.hh.performance_review.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.bind.v2.TODO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 import ru.hh.performance_review.controller.base.Cookie;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.hh.performance_review.dto.GetPollResponseDto;
+import ru.hh.performance_review.dto.response.EmptyDtoResponse;
 import ru.hh.performance_review.dto.response.UserResponseDto;
-import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
@@ -24,8 +22,6 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -71,26 +67,35 @@ public class PollController {
     @Path(value = "/start/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam("user-id") String userId, @RequestBody List<String> includedIdsString) {
-        try {
-            log.info("Получен запрос start/" + pollId);
-            userId = Optional.ofNullable(userId).orElse(defaultUserId);
-            NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
-            startPollService.changeStatusPoll(UUID.fromString(pollId), UUID.fromString(userId), PollStatus.PROGRESS);
-            if (!CollectionUtils.isEmpty(includedIdsString)) {
-                List<UUID> includedIds = includedIdsString.stream()
-                        .map(UUID::fromString)
-                        .collect(Collectors.toList());
-                startPollService.saveExcluded(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
-                startPollService.saveComparePair(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
-            }
-            // TODO: 22.05.2022 формирование и запись всех пар для опроса
-            return Response.ok().build();
-        } catch (Exception e) {
-            String errorMsg = String.format("Ошибка обработки запроса /start/{poll_id} %s", e.getLocalizedMessage());
-            log.error(errorMsg);
-            log.error("", e);
-            return Response.serverError().build();
-        }
+//        try {
+//            log.info("Получен запрос start/" + pollId);
+//            userId = Optional.ofNullable(userId).orElse(defaultUserId);
+//            NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
+//            startPollService.changeStatusPoll(UUID.fromString(pollId), UUID.fromString(userId), PollStatus.PROGRESS);
+//            if (!CollectionUtils.isEmpty(includedIdsString)) {
+//                List<UUID> includedIds = includedIdsString.stream()
+//                        .map(UUID::fromString)
+//                        .collect(Collectors.toList());
+//                startPollService.saveExcluded(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
+//                startPollService.saveComparePair(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
+//            }
+//            // TODO: 22.05.2022 формирование и запись всех пар для опроса
+//            return Response.ok().build();
+//        } catch (Exception e) {
+//            String errorMsg = String.format("Ошибка обработки запроса /start/{poll_id} %s", e.getLocalizedMessage());
+//            log.error(errorMsg);
+//            log.error("", e);
+//            return Response.serverError().build();
+//        }
+
+        log.info("Получен запрос start/" + pollId);
+        NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
+        return new HttpRequestHandler<String, EmptyDtoResponse>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> startPollService.doStartPoll(pollId, userId, includedIdsString))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+
     }
 
    /**

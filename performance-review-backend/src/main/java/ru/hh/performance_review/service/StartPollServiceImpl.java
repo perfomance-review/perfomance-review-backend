@@ -1,17 +1,18 @@
 package ru.hh.performance_review.service;
 
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dao.base.CommonDao;
+import ru.hh.performance_review.dto.response.EmptyDtoResponse;
 import ru.hh.performance_review.model.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -25,9 +26,8 @@ public class StartPollServiceImpl implements StartPollService{
 
     @Override
     @Transactional
-    public void changeStatusPoll(UUID pollId, UUID userId, PollStatus status) {
-        Poll poll = commonDao.getByID(Poll.class, pollId);
-        User user = commonDao.getByID(User.class, userId);
+    public void changeStatusPoll(Poll poll, User user, PollStatus status) {
+
         RespondentsOfPoll respondentsOfPoll = respondentsOfPollDao.getRespondentsOfPoll(poll, user);
         respondentsOfPoll.setStatus(status);
         commonDao.update(respondentsOfPoll);
@@ -35,22 +35,17 @@ public class StartPollServiceImpl implements StartPollService{
 
     @Override
     @Transactional
-    public void saveExcluded(UUID pollId, UUID userId, List<UUID> includedIds) {
+    public void saveExcluded(Poll poll, User user, List<UUID> includedIds) {
 
-        Poll poll = commonDao.getByID(Poll.class,pollId);
-        User currentUser = commonDao.getByID(User.class, userId);
-
-        userDao.getExcluded(includedIds, userId).stream()
-                .map(o -> new ExcludedRespondentsOfPoll(UUID.randomUUID(), poll, currentUser, o))
-                .forEach(commonDao::saveOrUpdate);
+        userDao.getExcluded(includedIds, user.getUserId()).stream()
+                .map(o -> new ExcludedRespondentsOfPoll(UUID.randomUUID(), poll, user, o))
+                .forEach(commonDao::save);
     }
 
     @Override
     @Transactional
-    public void saveComparePair(UUID pollId, UUID userId, List<UUID> includedIds) {
+    public void saveComparePair(Poll poll, User user, List<UUID> includedIds) {
 
-        Poll poll = commonDao.getByID(Poll.class, pollId);
-        User user = commonDao.getByID(User.class, userId);
         List<Question> questions = contentOfPollDao.getQuestions(poll);
         List<User> participants = userDao.getIncluded(includedIds);
 
@@ -58,11 +53,28 @@ public class StartPollServiceImpl implements StartPollService{
             for (int i = 0; i < participants.size(); i++) {
                 for (int j = i+1; j < participants.size(); j++) {
                     ComparePair comparePair = new ComparePair(poll, question,participants.get(i), participants.get(j), user);
-                    commonDao.saveOrUpdate(comparePair);
+                    commonDao.save(comparePair);
                 }
             }
         }
+    }
 
+    @Override
+    @Transactional
+    public EmptyDtoResponse doStartPoll(String pollId, String userId, List<String> includedIdsString) {
+
+        Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
+        User user = commonDao.getByID(User.class, UUID.fromString(userId));
+
+        List<UUID> includedIds = includedIdsString.stream()
+                        .map(UUID::fromString)
+                        .collect(Collectors.toList());
+
+        changeStatusPoll(poll, user, PollStatus.PROGRESS);
+        saveExcluded(poll, user, includedIds);
+        saveComparePair(poll, user, includedIds);
+
+        return new EmptyDtoResponse();
 
     }
 
