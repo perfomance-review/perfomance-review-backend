@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import ru.hh.performance_review.controller.base.Cookie;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.hh.performance_review.dto.GetPollResponseDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
+import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.service.PollService;
@@ -47,26 +47,14 @@ public class PollController {
     @GET
     @Path("polls")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response getPolls(@CookieParam("user-id") String userId) {
-        log.info("Получен запрос /polls userRole");
-    /*
-    TODO:
-    1. Если аутентификация уже выполнена - передать в pollService информацию о пользователе: id
-     */
-        try {
-            userId = Optional.ofNullable(userId).orElse(userService.getAnyRespondentId());
-            log.info("userId:{}", userId);
-            final List<GetPollResponseDto> polls = pollService.getPolls(userId);
-            String response = objectMapper.writeValueAsString(polls);
-            log.info("Ответ на запрос:{}", response);
-            return Response.ok(response).build();
-        } catch (Exception e) {
-            String errorMsg = String.format("Ошибка обработки запроса /polls %s", e.getLocalizedMessage());
-            log.error(errorMsg);
-            log.error("", e);
-            return Response.serverError().build();
-        }
+        log.info("Получен запрос /polls");
+        NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
+        return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
+            .validate(v -> userValidateService.userIdValidate(userId))
+            .process(x -> pollService.getPollsByUserId(userId))
+            .convert(objectConvertService::convertToJson)
+            .forArgument(userId, cookie);
     }
 
     @POST

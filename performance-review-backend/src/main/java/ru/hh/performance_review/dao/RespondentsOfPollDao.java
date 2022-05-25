@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.Poll;
+import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.model.RespondentsOfPoll;
 import ru.hh.performance_review.model.User;
 
@@ -38,6 +39,26 @@ public class RespondentsOfPollDao extends CommonDao {
                 "FROM RespondentsOfPoll r " +
                 "WHERE r.poll.pollId = :pollId", RespondentsOfPoll.class)
             .setParameter("pollId", pollId)
+            .getResultList();
+    }
+
+    public List<RespondentsOfPoll> getByPollIds(List<UUID> pollIds) {
+        return getSession()
+            .createQuery("SELECT r " +
+                "FROM RespondentsOfPoll r " +
+                "WHERE r.poll.pollId IN :pollIds", RespondentsOfPoll.class)
+            .setParameterList("pollIds", pollIds)
+            .getResultList();
+    }
+
+    public List<RespondentsOfPoll> getByUserIdWithActiveStatus(UUID userId) {
+        List<PollStatus> activeStatus = List.of(PollStatus.OPEN, PollStatus.PROGRESS);
+        return getSession()
+            .createQuery("SELECT r " +
+                "FROM RespondentsOfPoll r " +
+                "WHERE r.respondent.userId = :userId AND r.status IN :status", RespondentsOfPoll.class)
+            .setParameter("userId", userId)
+            .setParameterList("status", activeStatus)
             .getResultList();
     }
 }
