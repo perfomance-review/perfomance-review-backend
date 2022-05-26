@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "poll", schema = "performance_review")
+@Table(name = "poll")
 public class Poll extends AbstractAuditableBaseEntity {
 
     /**

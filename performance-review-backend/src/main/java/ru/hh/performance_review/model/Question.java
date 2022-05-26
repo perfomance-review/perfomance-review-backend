@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "question", schema = "performance_review")
+@Table(name = "question")
 @Accessors(chain = true)
 public class Question extends AbstractAuditableBaseEntity {
 

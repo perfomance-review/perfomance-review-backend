@@ -21,7 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "competence", schema = "performance_review")
+@Table(name = "competence")
 public class Competence extends AbstractAuditableBaseEntity {
 
     /**
