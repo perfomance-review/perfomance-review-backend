@@ -23,6 +23,7 @@ public class BusinessServiceException extends RuntimeException {
     private String businessMessage;
 
     public BusinessServiceException(int errCode, String errorMessage, String businessMessage) {
+        super(businessMessage);
         this.errCode = errCode;
         this.errorMessage = errorMessage;
         this.businessMessage = businessMessage;
@@ -64,6 +65,7 @@ public class BusinessServiceException extends RuntimeException {
     }
 
     public BusinessServiceException(ErrorCode errorCode, String businessMessage) {
+        super(businessMessage);
         this.errCode = errorCode.getErrorCode();
         this.errorMessage = errorCode.getErrorDescription();
         this.businessMessage = businessMessage;

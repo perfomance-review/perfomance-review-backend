@@ -8,6 +8,7 @@ import ru.hh.performance_review.model.RespondentsOfPoll;
 import ru.hh.performance_review.model.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -39,5 +40,16 @@ public class RespondentsOfPollDao extends CommonDao {
                 "WHERE r.poll.pollId = :pollId", RespondentsOfPoll.class)
             .setParameter("pollId", pollId)
             .getResultList();
+    }
+
+    public Optional<RespondentsOfPoll> findOptionalByRespondentsOfPoll(Poll poll, User respondent) {
+        return getSession().createQuery(
+                "SELECT r FROM RespondentsOfPoll r " +
+                        "   WHERE r.respondent = :respondent " +
+                        "       AND r.poll = :poll" +
+                        "", RespondentsOfPoll.class)
+                .setParameter("respondent", respondent)
+                .setParameter("poll", poll)
+                .uniqueResultOptional();
     }
 }

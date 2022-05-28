@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Константы cookies
+ * @deprecated вместо него {@link CookieConst}
+ * @see CookieConst
  */
+@Deprecated
 @RequiredArgsConstructor
 @Getter
 public enum Cookie {

@@ -20,7 +20,7 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             log.error(e.getLocalizedMessage());
             throw new ValidateException(e, InternalErrorCode.VALIDATION_ERROR,
-                String.format("%s:%s", nameField, checkField));
+                String.format("Некорректно заполнено поле %s:%s", nameField, checkField));
         }
     }
 }
