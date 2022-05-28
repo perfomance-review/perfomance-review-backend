@@ -1,23 +1,27 @@
 package ru.hh.performance_review.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
-import ru.hh.performance_review.controller.base.Cookie;
-import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.hh.performance_review.controller.base.Cookie;
+import ru.hh.performance_review.controller.base.CookieConst;
+import ru.hh.performance_review.controller.base.HttpRequestHandler;
+import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
+import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.service.PollService;
+import ru.hh.performance_review.service.StartPollService;
 import ru.hh.performance_review.service.UserService;
+import ru.hh.performance_review.service.WinnerCompleteService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
 import ru.hh.performance_review.service.validate.PollValidateService;
+import ru.hh.performance_review.service.validate.RatingRequestValidateService;
 import ru.hh.performance_review.service.validate.UserValidateService;
-import ru.hh.performance_review.service.StartPollService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -35,12 +39,13 @@ import java.util.stream.Collectors;
 public class PollController {
 
     private final PollService pollService;
-    private final ObjectMapper objectMapper;
     private final UserService userService;
     private final UserValidateService userValidateService;
     private final PollValidateService pollValidateService;
     private final ObjectConvertService objectConvertService;
     private final StartPollService startPollService;
+    private final RatingRequestValidateService ratingRequestValidateService;
+    private final WinnerCompleteService winnerCompleteService;
     private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
 
 
@@ -49,7 +54,7 @@ public class PollController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPolls(@CookieParam("user-id") String userId) {
         log.info("Получен запрос /polls");
-        NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
         return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
             .validate(v -> userValidateService.userIdValidate(userId))
             .process(x -> pollService.getPollsByUserId(userId))
@@ -118,6 +123,28 @@ public class PollController {
             .process(x -> pollService.getPollById(pollId))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
+    }
+
+    /**
+     * endpoint обновления победителя в паре по конкретному вопросу текущего опроса
+     *
+     * @param userId              - идентификатор пользователя
+     * @param updateWinnerRequestDto - данные запроса
+     * @return - ДТО с информацией об опросе
+     */
+    @POST
+    @Path("updatewinner")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateWinner(@CookieParam(CookieConst.USER_ID) String userId,
+                                 @RequestBody UpdateWinnerRequestDto updateWinnerRequestDto) {
+        log.info("Получен запрос /updatewinner с телом: {}", updateWinnerRequestDto);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, ResponseMessage>()
+                .validate(v -> ratingRequestValidateService.validateUpdateWinnerRequestDto(userId, updateWinnerRequestDto))
+                .process(x -> winnerCompleteService.updateWinner(userId, updateWinnerRequestDto))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
     }
 
 }

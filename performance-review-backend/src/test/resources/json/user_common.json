@@ -1,0 +1,12 @@
+{
+  "userId": "e0a91a91-df22-4998-81a1-b3f7d68ecd66",
+  "email": "test_user@gmail.com",
+  "password": "***",
+  "firstName": "user",
+  "secondName": "u",
+  "middleName": "u",
+  "position": "",
+  "probation": false,
+  "linkPhoto": "link",
+  "role": "RESPONDENT"
+}
