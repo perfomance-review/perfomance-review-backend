@@ -7,8 +7,6 @@ import lombok.Setter;
 import ru.hh.performance_review.model.base.AbstractAuditableBaseEntity;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "respondents_of_poll", schema = "performance_review")
+@Table(name = "respondents_of_poll")
 public class RespondentsOfPoll extends AbstractAuditableBaseEntity {
 
     /**

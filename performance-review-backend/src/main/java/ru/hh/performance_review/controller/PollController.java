@@ -4,20 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.hh.performance_review.controller.base.Cookie;
-import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.hh.performance_review.controller.base.Cookie;
+import ru.hh.performance_review.controller.base.CookieConst;
+import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.GetPollResponseDto;
 import ru.hh.performance_review.dto.response.EmptyDtoResponse;
+import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
+import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.service.PollService;
+import ru.hh.performance_review.service.StartPollService;
 import ru.hh.performance_review.service.UserService;
+import ru.hh.performance_review.service.WinnerCompleteService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
 import ru.hh.performance_review.service.validate.PollValidateService;
 import ru.hh.performance_review.service.validate.StarPollValidateService;
+import ru.hh.performance_review.service.validate.RatingRequestValidateService;
 import ru.hh.performance_review.service.validate.UserValidateService;
-import ru.hh.performance_review.service.StartPollService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,6 +30,8 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -41,6 +48,8 @@ public class PollController {
     private final StartPollService startPollService;
     private final StarPollValidateService starPollValidateService;
 
+    private final RatingRequestValidateService ratingRequestValidateService;
+    private final WinnerCompleteService winnerCompleteService;
     private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
 
 
@@ -127,6 +136,28 @@ public class PollController {
             .process(x -> pollService.getPollById(pollId))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
+    }
+
+    /**
+     * endpoint обновления победителя в паре по конкретному вопросу текущего опроса
+     *
+     * @param userId              - идентификатор пользователя
+     * @param updateWinnerRequestDto - данные запроса
+     * @return - ДТО с информацией об опросе
+     */
+    @POST
+    @Path("updatewinner")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateWinner(@CookieParam(CookieConst.USER_ID) String userId,
+                                 @RequestBody UpdateWinnerRequestDto updateWinnerRequestDto) {
+        log.info("Получен запрос /updatewinner с телом: {}", updateWinnerRequestDto);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, ResponseMessage>()
+                .validate(v -> ratingRequestValidateService.validateUpdateWinnerRequestDto(userId, updateWinnerRequestDto))
+                .process(x -> winnerCompleteService.updateWinner(userId, updateWinnerRequestDto))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
     }
 
 }

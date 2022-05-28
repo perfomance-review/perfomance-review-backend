@@ -41,4 +41,15 @@ public class RespondentsOfPollDao extends CommonDao {
             .setParameter("pollId", pollId)
             .getResultList();
     }
+
+    public Optional<RespondentsOfPoll> findOptionalByRespondentsOfPoll(Poll poll, User respondent) {
+        return getSession().createQuery(
+                "SELECT r FROM RespondentsOfPoll r " +
+                        "   WHERE r.respondent = :respondent " +
+                        "       AND r.poll = :poll" +
+                        "", RespondentsOfPoll.class)
+                .setParameter("respondent", respondent)
+                .setParameter("poll", poll)
+                .uniqueResultOptional();
+    }
 }

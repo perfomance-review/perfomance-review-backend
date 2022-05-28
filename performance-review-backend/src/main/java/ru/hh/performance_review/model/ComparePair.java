@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "compare_pair", schema = "performance_review")
+@Table(name = "compare_pair")
 public class ComparePair extends AbstractAuditableBaseEntity {
 
     /**
