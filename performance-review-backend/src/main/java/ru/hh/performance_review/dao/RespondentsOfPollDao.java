@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.Poll;
+import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.model.RespondentsOfPoll;
 import ru.hh.performance_review.model.User;
 
@@ -21,16 +22,6 @@ public class RespondentsOfPollDao extends CommonDao {
         return getSession()
             .createQuery("SELECT r " +
                 "FROM RespondentsOfPoll r", RespondentsOfPoll.class).getResultList();
-    }
-
-    public Optional<RespondentsOfPoll> getRespondentsOfPoll(Poll poll, User user) {
-        return getSession()
-            .createQuery("SELECT rop " +
-                "FROM RespondentsOfPoll rop " +
-                "WHERE rop.respondent = :paramUser AND rop.poll = :paramPoll", RespondentsOfPoll.class)
-            .setParameter("paramUser", user)
-            .setParameter("paramPoll", poll)
-            .uniqueResultOptional();
     }
 
     public List<RespondentsOfPoll> getByPollId(UUID pollId) {
@@ -51,5 +42,16 @@ public class RespondentsOfPollDao extends CommonDao {
                 .setParameter("respondent", respondent)
                 .setParameter("poll", poll)
                 .uniqueResultOptional();
+    }
+
+    /**
+     * метод обновления статуса опроса
+     */
+    public void changeStatusPoll(Poll poll, User user, PollStatus status) {
+        findOptionalByRespondentsOfPoll(poll, user)
+                .ifPresent(respondentsOfPoll -> {
+                    respondentsOfPoll.setStatus(status);
+                    update(respondentsOfPoll);
+                });
     }
 }

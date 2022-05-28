@@ -3,18 +3,16 @@ package ru.hh.performance_review.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dao.base.CommonDao;
-import ru.hh.performance_review.dto.response.EmptyDtoResponse;
+import ru.hh.performance_review.dto.response.EmptyResponseDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.model.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,17 +25,6 @@ public class StartPollServiceImpl implements StartPollService{
     private final RespondentsOfPollDao respondentsOfPollDao;
     private final UserDao userDao;
     private final ContentOfPollDao contentOfPollDao;
-
-    @Override
-    @Transactional
-    public void changeStatusPoll(Poll poll, User user, PollStatus status) {
-
-// TODO: 27.05.2022 Переделать 
-        RespondentsOfPoll respondentsOfPoll = respondentsOfPollDao.getRespondentsOfPoll(poll, user)
-                        .orElseThrow(BusinessServiceException::new);
-        respondentsOfPoll.setStatus(status);
-        commonDao.update(respondentsOfPoll);
-    }
 
     @Override
     @Transactional
@@ -67,7 +54,7 @@ public class StartPollServiceImpl implements StartPollService{
 
     @Override
     @Transactional
-    public EmptyDtoResponse doStartPoll(String pollId, String userId, List<String> includedIdsString) {
+    public EmptyResponseDto doStartPoll(String pollId, String userId, List<String> includedIdsString) {
 
         User user = commonDao.getByID(User.class, UUID.fromString(userId));
         if (user == null) {
@@ -83,11 +70,11 @@ public class StartPollServiceImpl implements StartPollService{
                         .map(UUID::fromString)
                         .collect(Collectors.toList());
 
-        changeStatusPoll(poll, user, PollStatus.PROGRESS);
+        respondentsOfPollDao.changeStatusPoll(poll, user, PollStatus.PROGRESS);
         saveExcluded(poll, user, includedIds);
         saveComparePair(poll, user, includedIds);
 
-        return new EmptyDtoResponse();
+        return new EmptyResponseDto();
 
     }
 

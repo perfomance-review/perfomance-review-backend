@@ -1,7 +1,6 @@
 package ru.hh.performance_review.service;
 
-import ru.hh.performance_review.dto.response.EmptyDtoResponse;
-import ru.hh.performance_review.dto.response.UserResponseDto;
+import ru.hh.performance_review.dto.response.EmptyResponseDto;
 import ru.hh.performance_review.model.Poll;
 import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.model.User;
@@ -15,11 +14,6 @@ import java.util.UUID;
 public interface StartPollService {
 
     /**
-     * Метод изменяет статус опроса на PROGRESS
-     */
-    void changeStatusPoll(Poll poll, User user, PollStatus status);
-
-    /**
      * Метод сохраняет в БД респондентов, которых исключили из опроса
      */
     void saveExcluded(Poll poll, User user, List<UUID> includedIds);
@@ -30,6 +24,6 @@ public interface StartPollService {
      */
     void saveComparePair(Poll poll, User user, List<UUID> includedIds);
 
-    public EmptyDtoResponse doStartPoll(String pollId, String userId, List<String> includedIdsString);
+    EmptyResponseDto doStartPoll(String pollId, String userId, List<String> includedIdsString);
 
 }
