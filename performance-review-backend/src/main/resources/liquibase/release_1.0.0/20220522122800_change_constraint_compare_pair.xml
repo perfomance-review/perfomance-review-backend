@@ -10,12 +10,12 @@
                context="schema" runOnChange="true">
         <sql>
             ALTER TABLE IF EXISTS compare_pair ALTER COLUMN winner_id DROP NOT NULL;
-            ALTER TABLE IF EXISTS compare_pair DROP CONSTRAINT compare_pair_poll_id_question_id_respondent_id_key;
+            ALTER TABLE IF EXISTS compare_pair DROP CONSTRAINT IF EXISTS compare_pair_poll_id_question_id_respondent_id_key;
             ALTER TABLE IF EXISTS compare_pair ADD CONSTRAINT unique_constraint UNIQUE (poll_id, respondent_id, question_id, person1_id, person2_id);
         </sql>
         <rollback>
             <sql>
-
+                ALTER TABLE IF EXISTS compare_pair DROP CONSTRAINT IF EXISTS unique_constraint;
             </sql>
         </rollback>
         <comment>

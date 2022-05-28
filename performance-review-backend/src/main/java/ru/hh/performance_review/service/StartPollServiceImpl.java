@@ -3,14 +3,18 @@ package ru.hh.performance_review.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.dto.response.EmptyDtoResponse;
+import ru.hh.performance_review.exception.BusinessServiceException;
+import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.model.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,7 +32,9 @@ public class StartPollServiceImpl implements StartPollService{
     @Transactional
     public void changeStatusPoll(Poll poll, User user, PollStatus status) {
 
-        RespondentsOfPoll respondentsOfPoll = respondentsOfPollDao.getRespondentsOfPoll(poll, user);
+// TODO: 27.05.2022 Переделать 
+        RespondentsOfPoll respondentsOfPoll = respondentsOfPollDao.getRespondentsOfPoll(poll, user)
+                        .orElseThrow(BusinessServiceException::new);
         respondentsOfPoll.setStatus(status);
         commonDao.update(respondentsOfPoll);
     }
@@ -52,7 +58,7 @@ public class StartPollServiceImpl implements StartPollService{
         for (Question question : questions) {
             for (int i = 0; i < participants.size(); i++) {
                 for (int j = i+1; j < participants.size(); j++) {
-                    ComparePair comparePair = new ComparePair(poll, question,participants.get(i), participants.get(j), user);
+                    ComparePair comparePair = new ComparePair(poll, question, participants.get(i), participants.get(j), user);
                     commonDao.save(comparePair);
                 }
             }
@@ -63,8 +69,15 @@ public class StartPollServiceImpl implements StartPollService{
     @Transactional
     public EmptyDtoResponse doStartPoll(String pollId, String userId, List<String> includedIdsString) {
 
-        Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
         User user = commonDao.getByID(User.class, UUID.fromString(userId));
+        if (user == null) {
+            throw new BusinessServiceException(InternalErrorCode.UNKNOWN_USER, String.format("userId:%s", userId));
+        }
+
+        Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
+        if (poll == null) {
+            throw new BusinessServiceException(InternalErrorCode.UNKNOWN_POLL, String.format("pollId:%s", pollId));
+        }
 
         List<UUID> includedIds = includedIdsString.stream()
                         .map(UUID::fromString)

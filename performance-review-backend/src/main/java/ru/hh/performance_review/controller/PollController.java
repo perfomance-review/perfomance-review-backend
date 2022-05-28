@@ -15,6 +15,7 @@ import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
 import ru.hh.performance_review.service.validate.PollValidateService;
+import ru.hh.performance_review.service.validate.StarPollValidateService;
 import ru.hh.performance_review.service.validate.UserValidateService;
 import ru.hh.performance_review.service.StartPollService;
 
@@ -24,8 +25,6 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -40,6 +39,8 @@ public class PollController {
     private final PollValidateService pollValidateService;
     private final ObjectConvertService objectConvertService;
     private final StartPollService startPollService;
+    private final StarPollValidateService starPollValidateService;
+
     private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
 
 
@@ -68,59 +69,25 @@ public class PollController {
         }
     }
 
+    /**
+     * endpoint начала опроса. Меняет статус опроса и формирует пары для опроса
+     *
+     * @param userId - идентификатор пользователя
+     * @param pollId - идентификатор опроса
+     * @paramRequestBody - массив участников опроса
+     */
     @POST
     @Path(value = "/start/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam("user-id") String userId, @RequestBody List<String> includedIdsString) {
-//        try {
-//            log.info("Получен запрос start/" + pollId);
-//            userId = Optional.ofNullable(userId).orElse(defaultUserId);
-//            NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
-//            startPollService.changeStatusPoll(UUID.fromString(pollId), UUID.fromString(userId), PollStatus.PROGRESS);
-//            if (!CollectionUtils.isEmpty(includedIdsString)) {
-//                List<UUID> includedIds = includedIdsString.stream()
-//                        .map(UUID::fromString)
-//                        .collect(Collectors.toList());
-//                startPollService.saveExcluded(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
-//                startPollService.saveComparePair(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
-//            }
-//            // TODO: 22.05.2022 формирование и запись всех пар для опроса
-//            return Response.ok().build();
-//        } catch (Exception e) {
-//            String errorMsg = String.format("Ошибка обработки запроса /start/{poll_id} %s", e.getLocalizedMessage());
-//            log.error(errorMsg);
-//            log.error("", e);
-//            return Response.serverError().build();
-//        }
 
-        log.info("Получен запрос start/" + pollId);
+        log.info("Получен запрос /start/" + pollId + " с телом: {} ", includedIdsString);
         NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
         return new HttpRequestHandler<String, EmptyDtoResponse>()
-                .validate(v -> userValidateService.userIdValidate(userId))
+                .validate(v -> starPollValidateService.validateDataStartPoll(pollId, userId, includedIdsString))
                 .process(x -> startPollService.doStartPoll(pollId, userId, includedIdsString))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
-
-    }
-
-   /**
-        try {
-            log.info("userId:{}", userId);
-            userId = Optional.ofNullable(userId).orElse(defaultUserId);
-            startPollService.changeStatusPoll(UUID.fromString(pollId), UUID.fromString(userId), PollStatus.PROGRESS);
-            if (!CollectionUtils.isEmpty(includedIdsString)) {
-                List<UUID> includedIds = includedIdsString.stream()
-                        .map(UUID::fromString)
-                        .collect(Collectors.toList());
-                startPollService.saveExcluded(UUID.fromString(pollId), UUID.fromString(userId), includedIds);
-            }
-            return Response.ok().build();
-        } catch (Exception e) {
-            String errorMsg = String.format("Ошибка обработки запроса /start/{poll_id} %s", e.getLocalizedMessage());
-            log.error(errorMsg);
-            log.error("", e);
-            return Response.serverError().build();
-        }
     }
 
     /**

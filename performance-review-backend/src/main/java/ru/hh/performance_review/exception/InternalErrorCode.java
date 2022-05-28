@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 public enum InternalErrorCode implements ErrorCode {
 
     UNKNOWN_USER(2, "Не найден пользователь"),
+    UNKNOWN_POLL(3, "Не найден опрос"),
     SERIALIZATION_ERROR(17, "Ошибка сериализации"),
     DB_SQL_ERROR(92, "Ошибка уровня SQL"),
     VALIDATION_ERROR(95, "Ошибка валидации входных параметров запроса"),

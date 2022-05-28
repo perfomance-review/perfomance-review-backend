@@ -33,9 +33,9 @@
 
         </sql>
         <rollback>
-            <sql>
+<!--            <sql>-->
 
-            </sql>
+<!--            </sql>-->
         </rollback>
         <comment>
             Rename test users into performance_review

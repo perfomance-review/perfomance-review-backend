@@ -11,20 +11,20 @@
         <sql>
 <!--            в таблицу content_of_poll добавляем колонку order-->
 
-            ALTER TABLE IF EXISTS content_of_poll ADD COLUMN q_order INTEGER;
+            ALTER TABLE IF EXISTS content_of_poll ADD COLUMN IF NOT EXISTS q_order INTEGER;
 
 <!--            в таблице compare_pair: добавляем колонки person1, person2-->
 <!--                                    удаляем колонку looser_id-->
 
-            ALTER TABLE IF EXISTS compare_pair ADD COLUMN person1_id UUID NOT NULL references users(user_id);
-            ALTER TABLE IF EXISTS compare_pair ADD COLUMN person2_id UUID NOT NULL references users(user_id);
-            ALTER TABLE IF EXISTS compare_pair DROP COLUMN looser_id;
+            ALTER TABLE IF EXISTS compare_pair ADD COLUMN  IF NOT EXISTS person1_id UUID NOT NULL references users(user_id);
+            ALTER TABLE IF EXISTS compare_pair ADD COLUMN  IF NOT EXISTS person2_id UUID NOT NULL references users(user_id);
+            ALTER TABLE IF EXISTS compare_pair DROP COLUMN IF EXISTS looser_id;
 
         </sql>
         <rollback>
-            <sql>
+<!--            <sql>-->
 
-            </sql>
+<!--            </sql>-->
         </rollback>
         <comment>
             Update tables content_of_poll and compare_pair into performance_review

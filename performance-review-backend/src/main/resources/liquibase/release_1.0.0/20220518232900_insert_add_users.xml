@@ -32,9 +32,9 @@
 
         </sql>
         <rollback>
-            <sql>
+<!--            <sql>-->
 
-            </sql>
+<!--            </sql>-->
         </rollback>
         <comment>
             Insert add test users into performance_review
