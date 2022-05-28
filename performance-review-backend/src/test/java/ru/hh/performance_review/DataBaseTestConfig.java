@@ -1,6 +1,7 @@
 package ru.hh.performance_review;
 
 import liquibase.integration.spring.SpringLiquibase;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,13 +37,13 @@ public class DataBaseTestConfig {
     properties.setSingleton(false);
     properties.setIgnoreResourceNotFound(true);
     properties.setLocations(
-        new ClassPathResource(DB_SETTINGS_FILE_NAME),
-        new ClassPathResource(DB_SETTINGS_FILE_NAME + ".dev"));
+            new ClassPathResource(DB_SETTINGS_FILE_NAME),
+            new ClassPathResource(DB_SETTINGS_FILE_NAME + ".dev"));
     return properties;
   }
 
-
-  public SpringLiquibase liquibase(DataSource dataSource) {
+  @Bean
+  public SpringLiquibase liquibase(@Qualifier("dataSource") DataSource dataSource) {
     SpringLiquibase liquibase = new SpringLiquibase();
 
     liquibase.setDataSource(dataSource);

@@ -1,2 +1,1 @@
 test_db.pool.idleTimeout=0
-test_db.schema=0
