@@ -4,8 +4,6 @@ import java.util.List;
 
 public interface StarPollValidateService {
 
-    // TODO: 25.05.2022 Описание  
-
     /**
      * Валидация userId, pollId, includedIdsString
      *

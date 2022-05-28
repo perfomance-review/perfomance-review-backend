@@ -9,11 +9,8 @@ import ru.hh.performance_review.controller.base.Cookie;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.GetPollResponseDto;
-import ru.hh.performance_review.dto.response.EmptyDtoResponse;
+import ru.hh.performance_review.dto.response.*;
 import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
-import ru.hh.performance_review.dto.response.PollByIdResponseDto;
-import ru.hh.performance_review.dto.response.ResponseMessage;
-import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.StartPollService;
 import ru.hh.performance_review.service.UserService;
@@ -30,8 +27,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 @Component
 @RequiredArgsConstructor
@@ -88,11 +84,11 @@ public class PollController {
     @POST
     @Path(value = "/start/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam("user-id") String userId, @RequestBody List<String> includedIdsString) {
+    public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId, @RequestBody List<String> includedIdsString) {
 
         log.info("Получен запрос /start/" + pollId + " с телом: {} ", includedIdsString);
-        NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
-        return new HttpRequestHandler<String, EmptyDtoResponse>()
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, EmptyResponseDto>()
                 .validate(v -> starPollValidateService.validateDataStartPoll(pollId, userId, includedIdsString))
                 .process(x -> startPollService.doStartPoll(pollId, userId, includedIdsString))
                 .convert(objectConvertService::convertToJson)

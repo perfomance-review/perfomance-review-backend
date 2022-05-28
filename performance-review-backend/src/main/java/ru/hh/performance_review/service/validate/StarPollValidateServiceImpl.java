@@ -3,6 +3,7 @@ package ru.hh.performance_review.service.validate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.service.validate.utils.Utils;
@@ -16,11 +17,8 @@ public class StarPollValidateServiceImpl implements StarPollValidateService {
     @Override
     public void validateDataStartPoll(String pollId, String userId, List<String> includedIds) {
 
-        // TODO: 25.05.2022
-//        Utils.validateUuidAsString(userId, CookieConst.USER_ID);
-
         Utils.validateUuidAsString(pollId, "pollId");
-        Utils.validateUuidAsString(userId, "userId");
+        Utils.validateUuidAsString(userId, CookieConst.USER_ID);
 
         if (CollectionUtils.isEmpty(includedIds)) {
             String errorMsg = String.format("body request %s==null or empty", "includedIdsString");
@@ -34,7 +32,6 @@ public class StarPollValidateServiceImpl implements StarPollValidateService {
             throw new ValidateException(InternalErrorCode.VALIDATION_ERROR, errorMsg);
         }
 
-        includedIds.stream()
-                .forEach(s -> Utils.validateUuidAsString(s, "includedId[" + includedIds.indexOf(s) + "]"));
+        includedIds.forEach(s -> Utils.validateUuidAsString(s, "includedId[" + includedIds.indexOf(s) + "]"));
     }
 }
