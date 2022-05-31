@@ -68,15 +68,20 @@ public class PollServiceImpl implements PollService {
 
 
     @Override
-    public PollByIdResponseDto getPollById(final String pollId) {
+    public PollByIdResponseDto getPollById(final String pollId, final String userId) {
         UUID uuid = UUID.fromString(pollId);
         Poll poll = pollDao.getByID(Poll.class, uuid);
-        List<UserPollByIdResponseDto> respondents = respondentsOfPollDao.getByPollId(uuid)
+        Map<Boolean, List<RespondentsOfPoll>> respondents = respondentsOfPollDao.getByPollId(uuid)
+            .stream()
+            .collect(Collectors
+                .partitioningBy(o -> o.getRespondent().getUserId().equals(UUID.fromString(userId))));
+        List<UserPollByIdResponseDto> respondentsDto = respondents.get(false)
             .stream()
             .map(o -> userMapper.toUserPollByIdResponseDto(o.getRespondent()))
             .collect(Collectors.toList());
+        PollStatus status = respondents.get(true).get(0).getStatus();
         List<ContentOfPoll> content = contentOfPollDao.getByPollId(uuid);
 
-        return pollMapper.toPollByIdResponseDto(poll, content.size(), respondents);
+        return pollMapper.toPollByIdResponseDto(poll, status, content.size(), respondentsDto);
     }
 }
