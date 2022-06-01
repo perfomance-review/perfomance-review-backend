@@ -17,5 +17,5 @@ public interface PollMapper {
     PollByUserIdResponseDto toPollByUserIdResponseDto(Poll poll, long respondentsCount, long questionsCount, PollStatus status);
 
     @Mapping(target = "title", source = "poll.name")
-    PollByIdResponseDto toPollByIdResponseDto(Poll poll, int questionsCount, List<UserPollByIdResponseDto> respondents);
+    PollByIdResponseDto toPollByIdResponseDto(Poll poll, PollStatus status, int questionsCount, List<UserPollByIdResponseDto> respondents);
 }

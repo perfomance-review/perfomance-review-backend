@@ -120,7 +120,7 @@ public class PollController {
         NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
         return new HttpRequestHandler<String, PollByIdResponseDto>()
             .validate(v -> pollValidateService.getPollByIdValidate(userId, pollId))
-            .process(x -> pollService.getPollById(pollId))
+            .process(x -> pollService.getPollById(pollId, userId))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
     }

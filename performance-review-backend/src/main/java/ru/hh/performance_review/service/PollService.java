@@ -7,5 +7,5 @@ public interface PollService {
 
     PollsByUserIdResponseDto getPollsByUserId(String user);
 
-    PollByIdResponseDto getPollById(String pollId);
+    PollByIdResponseDto getPollById(String pollId, String userId);
 }
