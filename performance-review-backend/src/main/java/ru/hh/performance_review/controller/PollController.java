@@ -11,15 +11,9 @@ import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.GetPollResponseDto;
 import ru.hh.performance_review.dto.response.*;
 import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
-import ru.hh.performance_review.service.PollService;
-import ru.hh.performance_review.service.StartPollService;
-import ru.hh.performance_review.service.UserService;
-import ru.hh.performance_review.service.WinnerCompleteService;
+import ru.hh.performance_review.service.*;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
-import ru.hh.performance_review.service.validate.PollValidateService;
-import ru.hh.performance_review.service.validate.StarPollValidateService;
-import ru.hh.performance_review.service.validate.RatingRequestValidateService;
-import ru.hh.performance_review.service.validate.UserValidateService;
+import ru.hh.performance_review.service.validate.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -46,6 +40,8 @@ public class PollController {
 
     private final RatingRequestValidateService ratingRequestValidateService;
     private final WinnerCompleteService winnerCompleteService;
+    private final GradeService gradeService;
+    private final ResultUserValidateService resultUserValidateService;
     private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
 
 
@@ -91,6 +87,27 @@ public class PollController {
         return new HttpRequestHandler<String, EmptyResponseDto>()
                 .validate(v -> starPollValidateService.validateDataStartPoll(pollId, userId, includedIdsString))
                 .process(x -> startPollService.doStartPoll(pollId, userId, includedIdsString))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
+
+    /**
+     * endpoint получения оценки данного пользователя по всем вопросам и компетенциям данного опроса
+     *
+     * @param userId - идентификатор пользователя
+     * @param pollId - идентификатор опроса
+     * @return - ДТО с вопросами, компетенциями и оценками
+     */
+    @GET
+    @Path(value = "/result/{poll_id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getResultForUser(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId) {
+        log.info("Get result /result/" + pollId + " для пользователя: " + userId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, GradeUserDto>()
+                .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
+                .process(x -> gradeService.countGrade(userId, pollId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }

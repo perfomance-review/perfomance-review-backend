@@ -7,6 +7,7 @@ import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.dto.WinnerRawDto;
 import ru.hh.performance_review.model.ComparePair;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,5 +34,17 @@ public class ComparePairDao extends CommonDao {
                 .setParameter("person2Id", ratingRawDto.getPerson2Id())
                 .setParameter("respondentId", respondentId)
                 .uniqueResultOptional();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComparePair> findOptionalGetRatingForUser(UUID userId, UUID pollId) {
+        return getSession().createQuery(
+                        "SELECT c " +
+                                " FROM ComparePair c " +
+                                "    WHERE c.poll.pollId = :pollId " +
+                                "       AND (c.person1.userId = :userId OR c.person2.userId = :userId)", ComparePair.class)
+                .setParameter("pollId", pollId)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 }
