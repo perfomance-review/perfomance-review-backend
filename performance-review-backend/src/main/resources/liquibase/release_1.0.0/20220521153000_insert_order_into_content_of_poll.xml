@@ -146,9 +146,9 @@
 
         </sql>
         <rollback>
-            <sql>
+<!--            <sql>-->
 
-            </sql>
+<!--            </sql>-->
         </rollback>
         <comment>
             Insert order into content_of_poll

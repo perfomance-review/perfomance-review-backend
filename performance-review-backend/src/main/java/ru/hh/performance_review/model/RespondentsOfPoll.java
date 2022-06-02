@@ -31,14 +31,14 @@ public class RespondentsOfPoll extends AbstractAuditableBaseEntity {
     /**
      * id опроса
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "poll_id")
     private Poll poll;
 
     /**
      * id респондента
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "respondent_id")
     private User respondent;
 

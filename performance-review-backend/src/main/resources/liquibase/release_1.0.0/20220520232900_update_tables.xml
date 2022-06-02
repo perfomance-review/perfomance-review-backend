@@ -22,9 +22,9 @@
 
         </sql>
         <rollback>
-            <sql>
+<!--            <sql>-->
 
-            </sql>
+<!--            </sql>-->
         </rollback>
         <comment>
             Update tables content_of_poll and compare_pair into performance_review

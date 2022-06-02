@@ -31,21 +31,21 @@ public class ExcludedRespondentsOfPoll extends AbstractAuditableBaseEntity {
     /**
      * id опроса
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "poll_id")
     private Poll poll;
 
     /**
      * id респондента
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "respondent_id")
     private User respondent;
 
     /**
      * id персоны, исключенной из данного опроса для данного респондента
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "excluded_id")
     private User excluded;
 

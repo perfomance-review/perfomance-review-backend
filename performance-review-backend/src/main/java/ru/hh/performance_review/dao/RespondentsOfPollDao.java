@@ -24,16 +24,6 @@ public class RespondentsOfPollDao extends CommonDao {
                 "FROM RespondentsOfPoll r", RespondentsOfPoll.class).getResultList();
     }
 
-    public RespondentsOfPoll getRespondentsOfPoll(Poll poll, User user) {
-        return getSession()
-            .createQuery("SELECT rop " +
-                "FROM RespondentsOfPoll rop " +
-                "WHERE rop.respondent = :paramUser AND rop.poll = :paramPoll", RespondentsOfPoll.class)
-            .setParameter("paramUser", user)
-            .setParameter("paramPoll", poll)
-            .getSingleResult();
-    }
-
     public List<RespondentsOfPoll> getByPollId(UUID pollId) {
         return getSession()
             .createQuery("SELECT r " +
@@ -52,6 +42,17 @@ public class RespondentsOfPollDao extends CommonDao {
                 .setParameter("respondent", respondent)
                 .setParameter("poll", poll)
                 .uniqueResultOptional();
+    }
+
+    /**
+     * метод обновления статуса опроса
+     */
+    public void changeStatusPoll(Poll poll, User user, PollStatus status) {
+        findOptionalByRespondentsOfPoll(poll, user)
+                .ifPresent(respondentsOfPoll -> {
+                    respondentsOfPoll.setStatus(status);
+                    update(respondentsOfPoll);
+                });
     }
 
     public List<RespondentsOfPoll> getByPollIds(List<UUID> pollIds) {
