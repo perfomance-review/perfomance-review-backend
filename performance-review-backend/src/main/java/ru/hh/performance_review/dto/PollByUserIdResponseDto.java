@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class GetPollResponseDto {
+public class PollByUserIdResponseDto {
   private UUID pollId;
   private String title;
   private LocalDate deadline;

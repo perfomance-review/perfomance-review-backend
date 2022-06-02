@@ -5,8 +5,10 @@ import org.springframework.test.context.ContextConfiguration;
 import ru.hh.nab.starter.NabApplication;
 import ru.hh.nab.testbase.NabTestBase;
 import ru.hh.performance_review.AppTestConfig;
+import ru.hh.performance_review.controller.base.CookieConst;
 
 import javax.ws.rs.core.Response;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,8 +22,10 @@ public class PollControllerTest extends NabTestBase {
 
     @Test
     public void getPolls_success() {
+        String userId = UUID.randomUUID().toString();
         String url = "/polls";
         Response response = createRequest(url)
+                .cookie(CookieConst.USER_ID, userId)
                 .buildGet()
                 .invoke();
 
