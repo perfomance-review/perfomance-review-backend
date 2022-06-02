@@ -17,7 +17,9 @@ public class ContentOfPollDao extends CommonDao {
     }
 
     public List<ContentOfPoll> getAll() {
-        return getSession().createQuery("SELECT c FROM ContentOfPoll c", ContentOfPoll.class).getResultList();
+        return getSession()
+            .createQuery("SELECT c " +
+                "FROM ContentOfPoll c", ContentOfPoll.class).getResultList();
     }
 
     public List<Question> getQuestions(Poll poll) {
@@ -30,10 +32,20 @@ public class ContentOfPollDao extends CommonDao {
     }
 
     public List<ContentOfPoll> getByPollId(UUID pollId) {
-        return getSession().createQuery("SELECT c " +
+        return getSession()
+            .createQuery("SELECT c " +
                 "FROM ContentOfPoll c " +
                 "WHERE c.poll.pollId = :pollId", ContentOfPoll.class)
             .setParameter("pollId", pollId)
+            .getResultList();
+    }
+
+    public List<ContentOfPoll> getByPollIds(final List<UUID> pollIds) {
+        return getSession()
+            .createQuery("SELECT c " +
+                "FROM ContentOfPoll c " +
+                "WHERE c.poll.pollId IN :pollIds", ContentOfPoll.class)
+            .setParameterList("pollIds", pollIds)
             .getResultList();
     }
 }
