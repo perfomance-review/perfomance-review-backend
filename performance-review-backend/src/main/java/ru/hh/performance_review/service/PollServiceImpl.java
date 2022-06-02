@@ -6,13 +6,14 @@ import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.PollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
-import ru.hh.performance_review.dto.GetPollResponseDto;
+import ru.hh.performance_review.dto.PollByUserIdResponseDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
 import ru.hh.performance_review.dto.response.ComparePairsOfPollDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.compairofpoll.ComparePairsOfPollInfoDto;
 import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.mapper.ComparePairOfPollMapper;
+import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
 import ru.hh.performance_review.mapper.PollMapper;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.*;
@@ -34,44 +35,54 @@ public class PollServiceImpl implements PollService {
     private final ComparePairOfPollMapper comparePairOfPollMapper;
 
     @Override
-    public List<GetPollResponseDto> getPolls(String userId) {
-        List<RespondentsOfPoll> respondents = respondentsOfPollDao.getAll();
-        List<ContentOfPoll> content = contentOfPollDao.getAll();
-
-        Map<Poll, PollStatus> pollsStatus = respondents.stream()
-            .filter(o -> o.getRespondent().getUserId().equals(UUID.fromString(userId)))
+    public PollsByUserIdResponseDto getPollsByUserId(String userId) {
+        UUID userUUID = UUID.fromString(userId);
+        Map<Poll, PollStatus> pollsStatus = respondentsOfPollDao
+            .getByUserIdWithActiveStatus(userUUID)
+            .stream()
             .collect(Collectors.toMap(RespondentsOfPoll::getPoll, RespondentsOfPoll::getStatus));
-
-        List<GetPollResponseDto> polls = new ArrayList<>();
+        if (pollsStatus.size() == 0) {
+            return new PollsByUserIdResponseDto(Collections.emptyList());
+        }
+        List<UUID> poolIds = pollsStatus.keySet()
+            .stream()
+            .map(Poll::getPollId)
+            .collect(Collectors.toList());
+        List<ContentOfPoll> content = contentOfPollDao.getByPollIds(poolIds);
+        List<RespondentsOfPoll> respondents = respondentsOfPollDao.getByPollIds(poolIds);
+        List<PollByUserIdResponseDto> polls = new ArrayList<>();
 
         for (Poll poll : pollsStatus.keySet()) {
-
-            long respondentsCount = respondents.stream()
+            long respondentsCount = respondents
+                .stream()
                 .filter(o -> o.getPoll().equals(poll))
                 .count();
-
-            long questionsCount = content.stream()
+            long questionsCount = content
+                .stream()
                 .filter(o -> o.getPoll().equals(poll))
                 .count();
-
-            polls.add(pollMapper.toGetPollResponseDto(poll, respondentsCount, questionsCount, pollsStatus.get(poll)));
-
+            polls.add(pollMapper.toPollByUserIdResponseDto(poll, respondentsCount, questionsCount, pollsStatus.get(poll)));
         }
-
-        return polls;
+        return new PollsByUserIdResponseDto(polls);
     }
 
+
     @Override
-    public PollByIdResponseDto getPollById(final String pollId) {
+    public PollByIdResponseDto getPollById(final String pollId, final String userId) {
         UUID uuid = UUID.fromString(pollId);
         Poll poll = pollDao.getByID(Poll.class, uuid);
-        List<UserPollByIdResponseDto> respondents = respondentsOfPollDao.getByPollId(uuid)
+        Map<Boolean, List<RespondentsOfPoll>> respondents = respondentsOfPollDao.getByPollId(uuid)
+            .stream()
+            .collect(Collectors
+                .partitioningBy(o -> o.getRespondent().getUserId().equals(UUID.fromString(userId))));
+        List<UserPollByIdResponseDto> respondentsDto = respondents.get(false)
             .stream()
             .map(o -> userMapper.toUserPollByIdResponseDto(o.getRespondent()))
             .collect(Collectors.toList());
+        PollStatus status = respondents.get(true).get(0).getStatus();
         List<ContentOfPoll> content = contentOfPollDao.getByPollId(uuid);
 
-        return pollMapper.toPollByIdResponseDto(poll, content.size(), respondents);
+        return pollMapper.toPollByIdResponseDto(poll, status, content.size(), respondentsDto);
     }
 
     /**

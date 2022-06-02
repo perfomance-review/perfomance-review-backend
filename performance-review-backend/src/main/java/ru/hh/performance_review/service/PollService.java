@@ -1,17 +1,14 @@
 package ru.hh.performance_review.service;
 
-import ru.hh.performance_review.dto.GetPollResponseDto;
 import ru.hh.performance_review.dto.response.ComparePairsOfPollDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
-
-import java.util.List;
-
+import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
 
 public interface PollService {
 
-    List<GetPollResponseDto> getPolls(String user);
+    PollsByUserIdResponseDto getPollsByUserId(String user);
 
-    PollByIdResponseDto getPollById(String pollId);
+    PollByIdResponseDto getPollById(String pollId, String userId);
 
     /**
      * отдаёт вопрос и сформированные пары по опросу
