@@ -25,4 +25,15 @@ public class ContentOfPollDao extends CommonDao {
             .setParameter("pollId", pollId)
             .getResultList();
     }
+
+    public List<ContentOfPoll> findByPollIdAndQuestionIds(UUID pollId, List<UUID> questionIds) {
+        return getSession().createQuery(
+                "SELECT c FROM ContentOfPoll c " +
+                        "        WHERE c.question.questionId IN (:questionIds)" +
+                        "           AND c.poll.pollId = : pollId" +
+                        "", ContentOfPoll.class)
+                .setParameter("pollId", pollId)
+                .setParameter("questionIds", questionIds)
+                .getResultList();
+    }
 }

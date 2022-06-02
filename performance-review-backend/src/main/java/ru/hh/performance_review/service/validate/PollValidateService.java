@@ -12,4 +12,6 @@ public interface PollValidateService {
      * @param pollId - идентификатор опроса
      */
     void getPollByIdValidate(String userId, String pollId);
+
+    void validateComparePairsOfPoll(String userId, String pollId);
 }

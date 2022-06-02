@@ -22,10 +22,11 @@ public class ValidateException extends RuntimeException {
      */
     private String businessMessage;
 
-    public ValidateException(int errCode, String errorMessage, String businessMessage) {
+    public ValidateException(int errCode, String errorMessage) {
+        super(errorMessage);
         this.errCode = errCode;
         this.errorMessage = errorMessage;
-        this.businessMessage = businessMessage;
+        this.businessMessage = errorMessage;
     }
 
     public ValidateException(String message, int errCode, String errorMessage, String businessMessage) {

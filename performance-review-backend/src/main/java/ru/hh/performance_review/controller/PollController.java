@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.hh.performance_review.consts.RequestParams;
 import ru.hh.performance_review.controller.base.Cookie;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
@@ -157,6 +158,28 @@ public class PollController {
         return new HttpRequestHandler<String, ResponseMessage>()
                 .validate(v -> ratingRequestValidateService.validateUpdateWinnerRequestDto(userId, updateWinnerRequestDto))
                 .process(x -> winnerCompleteService.updateWinner(userId, updateWinnerRequestDto))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
+
+    /**
+     * endpoint который отдаёт вопрос и сформированные пары по опросу
+     *
+     * @param userId - идентификатор пользователя
+     * @param pollId - pollId запроса
+     * @return - ДТО с информацией об опросе
+     */
+    @GET
+    @Path("comparepairsofpoll")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getComparePairsOfPoll(@CookieParam(CookieConst.USER_ID) String userId,
+                                          @PathParam(RequestParams.POLL_ID) String pollId) {
+        log.info("Получен запрос /comparepairsofpoll с poll_id: {}", pollId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, ResponseMessage>()
+                .validate(v -> pollValidateService.validateComparePairsOfPoll(userId, pollId))
+                .process(x -> pollService.getComparePairOfPollDto(userId, pollId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }
