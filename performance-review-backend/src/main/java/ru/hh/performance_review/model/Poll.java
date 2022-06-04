@@ -36,6 +36,12 @@ public class Poll extends AbstractAuditableBaseEntity {
     private String name;
 
     /**
+     * Описание опроса
+     */
+    @Column(name = "description")
+    private String description;
+
+    /**
      * id менеджера данног опроса
      */
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
