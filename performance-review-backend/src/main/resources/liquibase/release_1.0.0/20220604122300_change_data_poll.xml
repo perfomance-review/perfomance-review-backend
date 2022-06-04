@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220604122300_change_data_poll.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220604122300" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+            UPDATE poll
+            SET name ='Оценка достижений', description = 'Оцениваются персональные достижения коллег, согласно ранее установленным KPI'
+            WHERE name = 'poll #1';
+
+            UPDATE poll
+            SET name ='Оценка вовлеченности', description = 'У вас запрошено персональное мнение по «микроклимату» в команде'
+            WHERE name = 'poll #2';
+
+            UPDATE poll
+            SET name ='Персональный запрос мнения', description = 'Оцениваются персональные достижения коллег, согласно ранее установленным KPI'
+            WHERE name = 'poll #3';
+        </sql>
+        <rollback>
+            <sql>
+                UPDATE poll
+                SET name = 'poll #1'
+                WHERE name ='Оценка достижений';
+
+                UPDATE poll
+                SET name = 'poll #2'
+                WHERE name ='Оценка вовлеченности';
+
+                UPDATE poll
+                SET name = 'poll #3'
+                WHERE name ='Персональный запрос мнения';
+            </sql>
+        </rollback>
+        <comment>
+            Add description into table poll
+        </comment>
+    </changeSet>
+</databaseChangeLog>
