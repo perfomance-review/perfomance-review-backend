@@ -16,8 +16,8 @@ import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.WinnerCompleteService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
 import ru.hh.performance_review.service.validate.PollValidateService;
-import ru.hh.performance_review.service.validate.StarPollValidateService;
 import ru.hh.performance_review.service.validate.RatingRequestValidateService;
+import ru.hh.performance_review.service.validate.StarPollValidateService;
 import ru.hh.performance_review.service.validate.UserValidateService;
 
 import javax.ws.rs.*;
@@ -149,7 +149,7 @@ public class PollController {
      * @return - ДТО с информацией об опросе
      */
     @GET
-    @Path("comparepairsofpoll")
+    @Path("comparepairsofpoll/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getComparePairsOfPoll(@CookieParam(CookieConst.USER_ID) String userId,

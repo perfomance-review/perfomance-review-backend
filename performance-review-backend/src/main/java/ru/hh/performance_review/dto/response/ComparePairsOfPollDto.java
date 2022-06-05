@@ -34,7 +34,7 @@ public class ComparePairsOfPollDto implements ResponseMessage {
     /**
      * id следующего вопроса
      */
-    private boolean hasNext = false;
+    private boolean hasNext;
 
     /**
      * Информация о парах
