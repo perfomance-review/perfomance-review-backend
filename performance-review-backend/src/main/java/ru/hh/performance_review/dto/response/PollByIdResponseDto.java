@@ -16,6 +16,11 @@ public class PollByIdResponseDto implements ResponseMessage {
     private String title;
 
     /**
+     * описание опроса
+     */
+    private String description;
+
+    /**
      * статус опроса
      */
     private PollStatus status;

@@ -16,6 +16,7 @@ import java.util.UUID;
 public class PollByUserIdResponseDto {
   private UUID pollId;
   private String title;
+  private String description;
   private LocalDate deadline;
   private long questionsCount;
   private long respondentsCount;
