@@ -5,13 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dto.response.UserResponseDto;
+import ru.hh.performance_review.dto.response.UsersInfoResponseDto;
+import ru.hh.performance_review.dto.response.UsersInfoResponseRawDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.RoleEnum;
 import ru.hh.performance_review.model.User;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -41,5 +45,13 @@ public class UserServiceImpl implements UserService {
     }
 
     return userMapper.toUserResponseDto(user);
+  }
+
+  @Override
+  public UsersInfoResponseDto getAllUsers() {
+    List<UsersInfoResponseRawDto> responseDtoList = userDao.getAll().stream()
+            .map(userMapper::toUsersInfoResponseRawDto)
+            .collect(Collectors.toList())           ;
+    return new UsersInfoResponseDto(responseDtoList);
   }
 }

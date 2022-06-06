@@ -2,6 +2,7 @@ package ru.hh.performance_review.dao;
 
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.RoleEnum;
 import ru.hh.performance_review.model.User;
@@ -17,6 +18,7 @@ public class UserDao extends CommonDao {
         super(sessionFactory);
     }
 
+    @Transactional(readOnly = true)
     public List<User> getAll() {
         return getSession().createQuery("SELECT u FROM User u", User.class).getResultList();
     }
