@@ -13,9 +13,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PollMapper {
     @Mapping(target = "title", source = "poll.name")
+    @Mapping(target = "description", source = "poll.description")
     @Mapping(target = "deadline", source = "poll.deadline")
     PollByUserIdResponseDto toPollByUserIdResponseDto(Poll poll, long respondentsCount, long questionsCount, PollStatus status);
 
     @Mapping(target = "title", source = "poll.name")
+    @Mapping(target = "description", source = "poll.description")
     PollByIdResponseDto toPollByIdResponseDto(Poll poll, PollStatus status, int questionsCount, List<UserPollByIdResponseDto> respondents);
 }
