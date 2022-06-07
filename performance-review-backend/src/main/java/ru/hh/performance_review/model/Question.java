@@ -1,9 +1,6 @@
 package ru.hh.performance_review.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import ru.hh.performance_review.model.base.AbstractAuditableBaseEntity;
 
@@ -17,6 +14,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Entity
 @Table(name = "question")
 @Accessors(chain = true)
