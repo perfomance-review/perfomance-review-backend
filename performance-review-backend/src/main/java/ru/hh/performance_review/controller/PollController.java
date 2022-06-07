@@ -65,15 +65,17 @@ public class PollController {
      * @param userId - идентификатор пользователя
      * @param pollId - идентификатор опроса
      * @paramRequestBody - массив участников опроса
+     * @return - ДТО с информацией об опросе
      */
     @POST
     @Path(value = "/start/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response startPoll(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId, @RequestBody List<String> includedIdsString) {
 
         log.info("Получен запрос /start/" + pollId + " с телом: {} ", includedIdsString);
         NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
-        return new HttpRequestHandler<String, EmptyResponseDto>()
+        return new HttpRequestHandler<String, PollProgressDto>()
                 .validate(v -> starPollValidateService.validateDataStartPoll(pollId, userId, includedIdsString))
                 .process(x -> startPollService.doStartPoll(pollId, userId, includedIdsString))
                 .convert(objectConvertService::convertToJson)

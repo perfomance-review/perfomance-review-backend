@@ -44,17 +44,6 @@ public class RespondentsOfPollDao extends CommonDao {
                 .uniqueResultOptional();
     }
 
-    /**
-     * метод обновления статуса опроса
-     */
-    public void changeStatusPoll(Poll poll, User user, PollStatus status) {
-        findOptionalByRespondentsOfPoll(poll, user)
-                .ifPresent(respondentsOfPoll -> {
-                    respondentsOfPoll.setStatus(status);
-                    update(respondentsOfPoll);
-                });
-    }
-
     public List<RespondentsOfPoll> getByPollIds(List<UUID> pollIds) {
         return getSession()
             .createQuery("SELECT r " +
