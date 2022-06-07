@@ -1,7 +1,10 @@
 package ru.hh.performance_review.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.PollDao;
@@ -10,21 +13,21 @@ import ru.hh.performance_review.dto.PollByUserIdResponseDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
 import ru.hh.performance_review.dto.response.ComparePairsOfPollDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
+import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
 import ru.hh.performance_review.dto.response.compairofpoll.ComparePairsOfPollInfoDto;
 import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.mapper.ComparePairOfPollMapper;
-import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
 import ru.hh.performance_review.mapper.PollMapper;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.*;
 
-import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PollServiceImpl implements PollService {
     private final RespondentsOfPollDao respondentsOfPollDao;
     private final ContentOfPollDao contentOfPollDao;
@@ -38,16 +41,16 @@ public class PollServiceImpl implements PollService {
     public PollsByUserIdResponseDto getPollsByUserId(String userId) {
         UUID userUUID = UUID.fromString(userId);
         Map<Poll, PollStatus> pollsStatus = respondentsOfPollDao
-            .getByUserIdWithActiveStatus(userUUID)
-            .stream()
-            .collect(Collectors.toMap(RespondentsOfPoll::getPoll, RespondentsOfPoll::getStatus));
+                .getByUserIdWithActiveStatus(userUUID)
+                .stream()
+                .collect(Collectors.toMap(RespondentsOfPoll::getPoll, RespondentsOfPoll::getStatus));
         if (pollsStatus.size() == 0) {
             return new PollsByUserIdResponseDto(Collections.emptyList());
         }
         List<UUID> poolIds = pollsStatus.keySet()
-            .stream()
-            .map(Poll::getPollId)
-            .collect(Collectors.toList());
+                .stream()
+                .map(Poll::getPollId)
+                .collect(Collectors.toList());
         List<ContentOfPoll> content = contentOfPollDao.getByPollIds(poolIds);
         List<RespondentsOfPoll> respondents = respondentsOfPollDao.getByPollIds(poolIds);
         List<PollByUserIdResponseDto> polls = new ArrayList<>();
@@ -109,17 +112,18 @@ public class PollServiceImpl implements PollService {
                 throw new ValidateException(105, String.format("Опрос завершен по userId:%s и pollId:%s", userId, pollId));
             }
         });
-
+        log.info("respondentsOfPoll: {}", respondentsOfPoll.get().toString());
         List<ComparePair> comparePairs = comparePairDao.findAllUncompletedComparePairsByUserIdAndPollId(userId, pollId);
+        log.info("comparePairs: {}", comparePairs.toString());
         Map<UUID, List<ComparePair>> stringListMap = comparePairs.stream()
                 .collect(Collectors.groupingBy(comparePair -> comparePair.getQuestion().getQuestionId()));
-
-        List<UUID> questionIds = comparePairs.stream()
-                .map(ComparePair::getQuestion)
-                .map(Question::getQuestionId)
-                .collect(Collectors.toList());
-
-        List<ContentOfPoll> contentOfPolls = contentOfPollDao.findByPollIdAndQuestionIds(pollId, questionIds);
+        log.info("stringListMap: {}", stringListMap.toString());
+        Set<UUID> questionIds = stringListMap.keySet();
+        log.info("questionIds: {}", questionIds.toString());
+        List<ContentOfPoll> contentOfPolls = CollectionUtils.isEmpty(questionIds)
+                ? Collections.emptyList()
+                : contentOfPollDao.findByPollIdAndQuestionIds(pollId, questionIds);
+        log.info("contentOfPolls: {}", contentOfPolls.toString());
         ContentOfPoll contentOfPollMin = getContentOfPollMin(contentOfPolls, questionIds, pollId);
         ContentOfPoll contentOfPollMax = getContentOfPollMax(contentOfPolls, questionIds, pollId);
         //пока максимальный != минимальным по ордеру, значит есть еще вопросы
@@ -142,7 +146,7 @@ public class PollServiceImpl implements PollService {
     }
 
     private ContentOfPoll getContentOfPollMin(List<ContentOfPoll> contentOfPolls,
-                                              List<UUID> questionIds, UUID pollId) {
+                                              Set<UUID> questionIds, UUID pollId) {
         Optional<ContentOfPoll> optionalContentOfPollMax = contentOfPolls
                 .stream()
                 .min(Comparator.comparing(ContentOfPoll::getOrder));
@@ -155,7 +159,7 @@ public class PollServiceImpl implements PollService {
     }
 
     private ContentOfPoll getContentOfPollMax(List<ContentOfPoll> contentOfPolls,
-                                              List<UUID> questionIds, UUID pollId) {
+                                              Set<UUID> questionIds, UUID pollId) {
         Optional<ContentOfPoll> optionalContentOfPollMax = contentOfPolls
                 .stream()
                 .max(Comparator.comparing(ContentOfPoll::getOrder));
