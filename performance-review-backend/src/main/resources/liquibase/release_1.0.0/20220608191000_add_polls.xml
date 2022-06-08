@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220608191000_add_polls.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220608191000" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+
+            <!--            заполнение таблицы poll-->
+
+            INSERT INTO poll(poll_id, name, description, manager_id, deadline, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Итоги спринта', 'Плановая оценка работы Agile-команды по итогам завершенного спринта',
+                 user_id, current_date + 3, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO poll(poll_id, name, description, manager_id, deadline, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'Квартальная оценка', 'Performance review по итогам квартала', user_id, current_date + 4,
+                 current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            INSERT INTO poll(poll_id, name, description, manager_id, deadline, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), 'По результатам испытательного срока',
+                'У вас запрошено мнение о результатах прохождения кандидатами испытательного срока', user_id, current_date + 5, current_date, current_date
+            FROM users WHERE users.email = 'manager@email.ru';
+
+            <!--            заполнение таблицы content_of_poll-->
+
+            <!--            poll #4-->
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 1
+            FROM poll, question
+            WHERE poll.name = 'Итоги спринта' AND question.text = 'Кто, на твой взгляд, лучше справляется со своими задачами?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 2
+            FROM poll, question
+            WHERE poll.name = 'Итоги спринта' AND question.text = 'Кто более ответственно подходит к выполнению задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 3
+            FROM poll, question
+            WHERE poll.name = 'Итоги спринта' AND question.text = 'Кто больше проявляет активность и инициативу в решении рабочих задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 4
+            FROM poll, question
+            WHERE poll.name = 'Итоги спринта' AND question.text = 'К чьему мнению чаще прислушиваются?';
+
+            <!--            poll #5-->
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 1
+            FROM poll, question
+            WHERE poll.name = 'Квартальная оценка' AND question.text = 'Кто быстрее и проще находит общий язык с другими?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 2
+            FROM poll, question
+            WHERE poll.name = 'Квартальная оценка' AND question.text = 'Кто более ответственно подходит к выполнению задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 3
+            FROM poll, question
+            WHERE poll.name = 'Квартальная оценка' AND question.text = 'Кто больше проявляет активность и инициативу в решении рабочих задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 4
+            FROM poll, question
+            WHERE poll.name = 'Квартальная оценка' AND question.text = 'К чьему мнению чаще прислушиваются?';
+
+            <!--            poll #6-->
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 1
+            FROM poll, question
+            WHERE poll.name = 'По результатам испытательного срока' AND question.text = 'Кто быстрее и проще находит общий язык с другими?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 2
+            FROM poll, question
+            WHERE poll.name = 'По результатам испытательного срока' AND question.text = 'Кто чаще других вовлекается в рабочие задачи и готов помогать другим?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 3
+            FROM poll, question
+            WHERE poll.name = 'По результатам испытательного срока' AND question.text = 'Кто больше проявляет активность и инициативу в решении рабочих задач?';
+
+            INSERT INTO content_of_poll(id, poll_id, question_id, rec_create_dttm, rec_update_dttm, q_order)
+            SELECT gen_random_uuid(), poll_id, question_id, current_date, current_date, 4
+            FROM poll, question
+            WHERE poll.name = 'По результатам испытательного срока' AND question.text = 'Кто наиболее эффективно использует имеющиеся ресурсы для решения рабочих задач?';
+
+            <!--            заполнение таблицы respondents_of_poll-->
+
+            INSERT INTO respondents_of_poll(id, poll_id, respondent_id, status, rec_create_dttm, rec_update_dttm)
+            SELECT gen_random_uuid(), poll_id, user_id, 'OPEN', current_date, current_date
+            FROM poll, users
+            WHERE poll.name in  ('Итоги спринта', 'Квартальная оценка', 'По результатам испытательного срока') AND users.role = 'RESPONDENT';
+
+<!--            исправление путаницы в предыдущих опросах-->
+
+            UPDATE poll
+            SET description = 'Оценка состояния вовлеченности по отделу'
+            WHERE name = 'Оценка вовлеченности';
+
+            UPDATE poll
+            SET description = 'У вас запрошено персональное мнение по «микроклимату» в команде'
+            WHERE name = 'Персональный запрос мнения';
+
+        </sql>
+        <rollback>
+<!--            <sql>-->
+<!--               -->
+<!--            </sql>-->
+        </rollback>
+        <comment>
+            Add 3 new polls into performance_review
+        </comment>
+    </changeSet>
+</databaseChangeLog>

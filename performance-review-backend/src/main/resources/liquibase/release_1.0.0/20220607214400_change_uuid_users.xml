@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220607214400_change_uuid_users.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220607214400" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+<!--            Замена ограничений внешних ключей на ON UPDATE CASCADE-->
+
+            ALTER TABLE IF EXISTS respondents_of_poll DROP CONSTRAINT IF EXISTS respondents_of_poll_respondent_id_fkey;
+            ALTER TABLE IF EXISTS respondents_of_poll ADD CONSTRAINT respondents_of_poll_respondent_id_fkey foreign key (respondent_id) references users(user_id) ON UPDATE CASCADE;
+
+            ALTER TABLE IF EXISTS compare_pair DROP CONSTRAINT IF EXISTS compare_pair_person1_id_fkey;
+            ALTER TABLE IF EXISTS compare_pair ADD CONSTRAINT compare_pair_person1_id_fkey foreign key (person1_id) references users(user_id) ON UPDATE CASCADE;
+            ALTER TABLE IF EXISTS compare_pair DROP CONSTRAINT IF EXISTS compare_pair_person2_id_fkey;
+            ALTER TABLE IF EXISTS compare_pair ADD CONSTRAINT compare_pair_person2_id_fkey foreign key (person2_id) references users(user_id) ON UPDATE CASCADE;
+            ALTER TABLE IF EXISTS compare_pair DROP CONSTRAINT IF EXISTS compare_pair_respondent_id_fkey;
+            ALTER TABLE IF EXISTS compare_pair ADD CONSTRAINT compare_pair_respondent_id_fkey foreign key (respondent_id) references users(user_id) ON UPDATE CASCADE;
+
+            ALTER TABLE IF EXISTS users DROP CONSTRAINT IF EXISTS users_lead_id_fkey;
+            ALTER TABLE IF EXISTS users ADD CONSTRAINT users_lead_id_fkey foreign key (lead_id) references users(user_id) ON UPDATE CASCADE;
+
+            ALTER TABLE IF EXISTS poll DROP CONSTRAINT IF EXISTS poll_manager_id_fkey;
+            ALTER TABLE IF EXISTS poll ADD CONSTRAINT poll_manager_id_fkey foreign key (manager_id) references users(user_id) ON UPDATE CASCADE;
+
+            ALTER TABLE IF EXISTS excluded_respondents_of_poll DROP CONSTRAINT IF EXISTS excluded_respondents_of_poll_respondent_id_fkey;
+            ALTER TABLE IF EXISTS excluded_respondents_of_poll ADD CONSTRAINT excluded_respondents_of_poll_respondent_id_fkey
+                                 foreign key (respondent_id) references users(user_id) ON UPDATE CASCADE;
+            ALTER TABLE IF EXISTS excluded_respondents_of_poll DROP CONSTRAINT IF EXISTS excluded_respondents_of_poll_excluded_id_fkey;
+            ALTER TABLE IF EXISTS excluded_respondents_of_poll ADD CONSTRAINT excluded_respondents_of_poll_excluded_id_fkey
+            foreign key (excluded_id) references users(user_id) ON UPDATE CASCADE;
+
+<!--            замена UUID users-->
+
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000002' WHERE email = 'user1@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000003' WHERE email = 'user2@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000004' WHERE email = 'user3@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000005' WHERE email = 'user4@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000006' WHERE email = 'user5@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000007' WHERE email = 'user7@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000008' WHERE email = 'user8@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-000000000009' WHERE email = 'admin@email.ru';
+            UPDATE users SET user_id ='00000000-0000-0000-0000-00000000000a' WHERE email = 'manager@email.ru';
+
+        </sql>
+        <rollback>
+<!--            <sql>-->
+<!--               -->
+<!--            </sql>-->
+        </rollback>
+        <comment>
+            Change UUID for users
+        </comment>
+    </changeSet>
+</databaseChangeLog>
