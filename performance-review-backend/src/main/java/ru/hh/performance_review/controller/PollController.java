@@ -1,6 +1,5 @@
 package ru.hh.performance_review.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -11,18 +10,12 @@ import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.response.*;
 import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
 import ru.hh.performance_review.service.*;
-import ru.hh.performance_review.dto.GetPollResponseDto;
-import ru.hh.performance_review.dto.response.*;
-import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
 import ru.hh.performance_review.service.PollService;
 import ru.hh.performance_review.service.StartPollService;
 import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.WinnerCompleteService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
-import ru.hh.performance_review.service.validate.PollValidateService;
-import ru.hh.performance_review.service.validate.StarPollValidateService;
-import ru.hh.performance_review.service.validate.RatingRequestValidateService;
-import ru.hh.performance_review.service.validate.UserValidateService;
+import ru.hh.performance_review.service.validate.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -38,7 +31,6 @@ import java.util.List;
 public class PollController {
 
     private final PollService pollService;
-    private final ObjectMapper objectMapper;
     private final UserService userService;
     private final UserValidateService userValidateService;
     private final PollValidateService pollValidateService;
