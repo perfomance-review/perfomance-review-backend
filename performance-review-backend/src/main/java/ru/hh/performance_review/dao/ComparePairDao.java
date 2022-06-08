@@ -47,4 +47,17 @@ public class ComparePairDao extends CommonDao {
                 .setParameter("userId", userId)
                 .getResultList();
     }
+
+    public List<ComparePair> findAllUncompletedComparePairsByUserIdAndPollId(UUID userId, UUID pollId) {
+        return getSession().createQuery(
+                "SELECT c " +
+                        " FROM ComparePair c " +
+                        "    WHERE c.poll.pollId = :pollId " +
+                        "       AND c.respondent.userId = :respondentId " +
+                        "       AND c.winner IS NULL " +
+                        "", ComparePair.class)
+                .setParameter("pollId", pollId)
+                .setParameter("respondentId", userId)
+                .getResultList();
+    }
 }

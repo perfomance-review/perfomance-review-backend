@@ -10,4 +10,8 @@
     <include file="20220520232900_update_tables.xml" relativeToChangelogFile="true"/>
     <include file="20220521153000_insert_order_into_content_of_poll.xml" relativeToChangelogFile="true"/>
     <include file="20220522122800_change_constraint_compare_pair.xml" relativeToChangelogFile="true"/>
+    <include file="20220604112300_change_table_poll.xml" relativeToChangelogFile="true"/>
+    <include file="20220604122300_change_data_poll.xml" relativeToChangelogFile="true"/>
+    <include file="20220607214400_change_uuid_users.xml" relativeToChangelogFile="true"/>
+    <include file="20220608191000_add_polls.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

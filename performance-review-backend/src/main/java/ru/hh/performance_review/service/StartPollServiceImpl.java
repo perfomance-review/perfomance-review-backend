@@ -7,12 +7,14 @@ import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dao.base.CommonDao;
-import ru.hh.performance_review.dto.response.EmptyResponseDto;
+import ru.hh.performance_review.dto.response.PollProgressDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
+import ru.hh.performance_review.mapper.PollMapper;
 import ru.hh.performance_review.model.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,19 +27,19 @@ public class StartPollServiceImpl implements StartPollService{
     private final RespondentsOfPollDao respondentsOfPollDao;
     private final UserDao userDao;
     private final ContentOfPollDao contentOfPollDao;
+    private final PollMapper pollMapper;
 
-    @Override
+
     @Transactional
-    public void saveExcluded(Poll poll, User user, List<UUID> includedIds) {
+    private void saveExcluded(Poll poll, User user, List<UUID> includedIds) {
 
         userDao.getExcluded(includedIds, user.getUserId()).stream()
                 .map(o -> new ExcludedRespondentsOfPoll(UUID.randomUUID(), poll, user, o))
                 .forEach(commonDao::save);
     }
 
-    @Override
     @Transactional
-    public void saveComparePair(Poll poll, User user, List<UUID> includedIds) {
+    private void saveComparePair(Poll poll, User user, List<UUID> includedIds) {
 
         List<Question> questions = contentOfPollDao.getQuestions(poll);
         List<User> participants = userDao.getIncluded(includedIds);
@@ -54,7 +56,7 @@ public class StartPollServiceImpl implements StartPollService{
 
     @Override
     @Transactional
-    public EmptyResponseDto doStartPoll(String pollId, String userId, List<String> includedIdsString) {
+    public PollProgressDto doStartPoll(String pollId, String userId, List<String> includedIdsString) {
 
         User user = commonDao.getByID(User.class, UUID.fromString(userId));
         if (user == null) {
@@ -70,12 +72,33 @@ public class StartPollServiceImpl implements StartPollService{
                         .map(UUID::fromString)
                         .collect(Collectors.toList());
 
-        respondentsOfPollDao.changeStatusPoll(poll, user, PollStatus.PROGRESS);
+        PollStatus newStatus = changeStatusPoll(poll, user);
         saveExcluded(poll, user, includedIds);
         saveComparePair(poll, user, includedIds);
 
-        return new EmptyResponseDto();
+        return pollMapper.toPollProgressDto(poll, newStatus);
 
+    }
+
+    @Transactional
+    private PollStatus changeStatusPoll(Poll poll, User user) {
+        Optional<RespondentsOfPoll> respondentsOfPollOptional = respondentsOfPollDao.findOptionalByRespondentsOfPoll(poll, user);
+
+        if (respondentsOfPollOptional.isEmpty()) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("Не найдена запись в таблице respondents_of_poll с user-id:%s и poll_id %s", user.getUserId(), poll.getPollId()));
+        }
+
+        RespondentsOfPoll respondentsOfPoll  = respondentsOfPollOptional.get();
+        if (!respondentsOfPoll.getStatus().equals(PollStatus.OPEN)) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("Для старта опрос с poll_id %s для user-id:%s должен иметь статус %s", poll.getPollId(), user.getUserId(), PollStatus.OPEN));
+        }
+
+        respondentsOfPoll.setStatus(PollStatus.PROGRESS);
+        respondentsOfPollDao.update(respondentsOfPoll);
+
+        return respondentsOfPoll.getStatus();
     }
 
 }

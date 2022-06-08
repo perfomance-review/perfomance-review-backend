@@ -8,6 +8,7 @@ import ru.hh.performance_review.model.Poll;
 import ru.hh.performance_review.model.Question;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -47,5 +48,16 @@ public class ContentOfPollDao extends CommonDao {
                 "WHERE c.poll.pollId IN :pollIds", ContentOfPoll.class)
             .setParameterList("pollIds", pollIds)
             .getResultList();
+    }
+
+    public List<ContentOfPoll> findByPollIdAndQuestionIds(UUID pollId, Set<UUID> questionIds) {
+        return getSession().createQuery(
+                "SELECT c FROM ContentOfPoll c " +
+                        "        WHERE c.question.questionId IN (:questionIds)" +
+                        "           AND c.poll.pollId = :pollId" +
+                        "", ContentOfPoll.class)
+                .setParameter("pollId", pollId)
+                .setParameter("questionIds", questionIds)
+                .getResultList();
     }
 }

@@ -1,6 +1,7 @@
 package ru.hh.performance_review.service;
 
 import ru.hh.performance_review.dto.response.UserResponseDto;
+import ru.hh.performance_review.dto.response.UsersInfoResponseDto;
 
 /**
  * Сервис получения данных пользователя
@@ -20,4 +21,6 @@ public interface UserService {
      * @return - User
      */
     UserResponseDto getRespondentByUserId(String userId);
+
+    UsersInfoResponseDto getAllUsers();
 }

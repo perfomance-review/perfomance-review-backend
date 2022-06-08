@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220604112300_change_table_poll.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220604112300" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+            ALTER TABLE IF EXISTS poll ADD COLUMN IF NOT EXISTS description TEXT;
+            ALTER TABLE IF EXISTS poll ALTER COLUMN name TYPE VARCHAR(100);
+        </sql>
+        <rollback>
+            <sql>
+                ALTER TABLE IF EXISTS poll DROP COLUMN IF EXISTS description;
+            </sql>
+        </rollback>
+        <comment>
+            Add column description into table poll
+        </comment>
+    </changeSet>
+</databaseChangeLog>
