@@ -98,11 +98,25 @@ public class PollController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getResultForUser(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId) {
-        log.info("Get result /result/" + pollId + " для пользователя: " + userId);
+        log.info("Get result /result/ " + pollId + " для пользователя: " + userId);
         NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
         return new HttpRequestHandler<String, GradeUserDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
                 .process(x -> gradeService.countGrade(userId, pollId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
+
+    @GET
+    @Path(value = "/rating/{poll_id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRating(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId) {
+        log.info("Get rating /rating/ " + pollId + " для менеджера: " + userId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, RatingResponseDto>()
+                .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
+                .process(x -> gradeService.countRating(userId, pollId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }

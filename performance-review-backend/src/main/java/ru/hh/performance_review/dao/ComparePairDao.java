@@ -37,7 +37,7 @@ public class ComparePairDao extends CommonDao {
     }
 
     @Transactional(readOnly = true)
-    public List<ComparePair> findOptionalGetRatingForUser(UUID userId, UUID pollId) {
+    public List<ComparePair> getRatingForUserByPollId(UUID userId, UUID pollId) {
         return getSession().createQuery(
                         "SELECT c " +
                                 " FROM ComparePair c " +
@@ -45,6 +45,16 @@ public class ComparePairDao extends CommonDao {
                                 "       AND (c.person1.userId = :userId OR c.person2.userId = :userId)", ComparePair.class)
                 .setParameter("pollId", pollId)
                 .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComparePair> getRatingForAllByPollId(UUID pollId) {
+        return getSession().createQuery(
+                        "SELECT c " +
+                                " FROM ComparePair c " +
+                                "    WHERE c.poll.pollId = :pollId ", ComparePair.class)
+                .setParameter("pollId", pollId)
                 .getResultList();
     }
 
