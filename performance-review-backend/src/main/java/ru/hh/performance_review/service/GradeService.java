@@ -1,10 +1,7 @@
 package ru.hh.performance_review.service;
 
-import ru.hh.performance_review.dto.response.EmptyResponseDto;
 import ru.hh.performance_review.dto.response.GradeUserDto;
 import ru.hh.performance_review.dto.response.RatingResponseDto;
-
-import java.util.List;
 
 /**
  * Сервис подсчета оценки
