@@ -1,5 +1,7 @@
 package ru.hh.performance_review.service.validate;
 
+import java.util.Set;
+
 /**
  * Сервис валидации
  */
@@ -11,7 +13,9 @@ public interface PollValidateService {
      * @param userId - идентификатор пользователя
      * @param pollId - идентификатор опроса
      */
-    void getPollByIdValidate(String userId, String pollId);
+    void validatePollById(String userId, String pollId);
 
     void validateComparePairsOfPoll(String userId, String pollId);
+
+    void validatePollsByUserId(String userId, Set<String> status);
 }
