@@ -10,7 +10,13 @@ import ru.hh.performance_review.dto.response.compairofpoll.UserInfoDto;
 @AllArgsConstructor
 public class UserWithScoreDto {
 
+    /**
+     * Информация о респонденте
+     */
     private UserInfoDto userInfo;
 
+    /**
+     * Оценка по шкале от 0 до 100
+     */
     private Long score;
 }

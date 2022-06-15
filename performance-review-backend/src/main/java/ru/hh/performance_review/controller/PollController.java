@@ -107,16 +107,26 @@ public class PollController {
                 .forArgument(userId, cookie);
     }
 
+    /**
+     * endpoint получения рейтинга всех респондентов по всем вопросам для данного опроса
+     * Поддерживает пагинацию, page - номер вопроса с 1
+     *
+     * @param userId - идентификатор пользователя (менеджер)
+     * @param pollId - идентификатор опроса
+     * @param page - номер вопроса, начиная с 1, необязательный
+     * @return - ДТО с вопросами, респондентами и оценками
+     */
     @GET
     @Path(value = "/rating/{poll_id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRating(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId) {
-        log.info("Get rating /rating/ " + pollId + " для менеджера: " + userId);
+    public Response getRating(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId,
+                              @QueryParam("page") Integer page) {
+        log.info("Получен запрос /rating/ " + pollId + " для менеджера: " + userId);
         NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
         return new HttpRequestHandler<String, RatingResponseDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
-                .process(x -> gradeService.countRating(userId, pollId))
+                .process(x -> gradeService.countRating(pollId, page))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }

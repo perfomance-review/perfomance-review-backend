@@ -58,6 +58,27 @@ public class ComparePairDao extends CommonDao {
                 .getResultList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ComparePair> getRatingForAllByPollIdPagination(UUID pollId, Integer page) {
+
+        int flagAll = (page == null) ? 1 : 0;
+
+        return getSession().createQuery(
+                      "SELECT pair " +
+                                " FROM ComparePair pair " +
+                                " INNER JOIN ContentOfPoll cop " +
+                                " ON pair.poll = cop.poll " +
+                                "     AND pair.question = cop.question " +
+                                " WHERE " +
+                                "     pair.poll.pollId = :pollId " +
+                                "     AND pair.winner IS NOT NULL " +
+                                "     AND (cop.order = :numQuestion or 1 = :flagAll)", ComparePair.class)
+                .setParameter("pollId", pollId)
+                .setParameter("numQuestion", page)
+                .setParameter("flagAll", flagAll)
+                .getResultList();
+    }
+
     public List<ComparePair> findAllUncompletedComparePairsByUserIdAndPollId(UUID userId, UUID pollId) {
         return getSession().createQuery(
                 "SELECT c " +

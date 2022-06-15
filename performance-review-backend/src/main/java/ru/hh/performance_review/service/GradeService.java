@@ -9,9 +9,13 @@ import ru.hh.performance_review.dto.response.RatingResponseDto;
 public interface GradeService {
 
     /**
-     * Метод подсчета оценок по вопросам и компетенциям данного пользователя по данному опросу
+     * Метод возвращает оценку по вопросам и компетенциям данного пользователя по данному опросу
      */
     GradeUserDto countGrade(String userId, String pollId);
 
-    RatingResponseDto countRating(String userId, String pollId);
+    /**
+     * Метод возвращает рейтинг респондентов по данному опросу в разрезе вопросов
+     * Поддерживает пагинацию, page - номер вопроса с 1
+     */
+    RatingResponseDto countRating(String pollId, Integer page);
 }

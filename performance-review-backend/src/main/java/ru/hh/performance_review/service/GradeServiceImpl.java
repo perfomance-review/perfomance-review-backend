@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import ru.hh.performance_review.dao.ComparePairDao;
+import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.dto.RatingQuestionDto;
 import ru.hh.performance_review.dto.UserWithScoreDto;
@@ -28,6 +30,8 @@ public class GradeServiceImpl implements GradeService{
     private final ComparePairDao comparePairDao;
     private final CommonDao commonDao;
     private final UserMapper userMapper;
+    private final ContentOfPollDao contentOfPollDao;
+
 
     @Transactional
     @Override
@@ -36,6 +40,11 @@ public class GradeServiceImpl implements GradeService{
         checkPollStatus(pollId);
         
         List<ComparePair> results = comparePairDao.getRatingForUserByPollId(UUID.fromString(userId), UUID.fromString(pollId));
+
+        if (CollectionUtils.isEmpty(results)) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("По опросу с id %s нет данных для оценки. Опрос не был пройден.", pollId));
+        }
 
         Map<Question, List<ComparePair>> questionsComparePairs = results.stream()
                .collect(Collectors.groupingBy(ComparePair::getQuestion));
@@ -49,7 +58,7 @@ public class GradeServiceImpl implements GradeService{
             double gradeQuestion = (9.0 * countWinner / questionsComparePairs.get(question).size()) + 1;
             resultQuestion.put(question.getText(), Math.round(gradeQuestion));
         }
-        
+
 
         Map<Competence, List<ComparePair>> competencesComparePairs = results.stream()
                .filter(x -> Objects.nonNull(x.getQuestion().getCompetence()))
@@ -70,17 +79,19 @@ public class GradeServiceImpl implements GradeService{
 
     @Transactional
     @Override
-    public RatingResponseDto countRating(String userId, String pollId) {
-
-        // TODO: 11.06.2022  Убрать проверку статуса опроса в отдельный метод
-        // TODO: 11.06.2022 Делать проверку на то, что запрос принадлежит этому менеджеру???
+    public RatingResponseDto countRating(String pollId, Integer page) {
 
         checkPollStatus(pollId);
-        
-        List<ComparePair> allResults = comparePairDao.getRatingForAllByPollId(UUID.fromString(pollId));  // все записи compare_pair по опросу
+
+        List<ComparePair> allResults = comparePairDao.getRatingForAllByPollIdPagination(UUID.fromString(pollId), page);  // все записи compare_pair по опросу
+
+        if (CollectionUtils.isEmpty(allResults)) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("По опросу с id %s нет данных для оценки. Опрос не был пройден.", pollId));
+        }
 
         List<User> respondents = Stream.concat(allResults.stream().map(ComparePair::getPerson1),        // все участники (реальные) опроса
-                        allResults.stream().map(ComparePair::getPerson2))
+                                               allResults.stream().map(ComparePair::getPerson2))
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -89,7 +100,7 @@ public class GradeServiceImpl implements GradeService{
 
         List<RatingQuestionDto> resultAllQuestions = new ArrayList<>();         // результаты по все вопросам
 
-        for (Question question: questionsComparePairs.keySet()) {
+       for (Question question: questionsComparePairs.keySet()) {
 
             List<UserWithScoreDto> resultQuestion = new ArrayList<>();         // результаты по 1 вопросу
 
@@ -103,13 +114,13 @@ public class GradeServiceImpl implements GradeService{
                         .count();
 
                 if (countParticipant == 0) {
-                    // TODO: 12.06.2022 Исключение??? 
-                    continue;
+                    throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                            String.format("Респондент с id %s не найден в таблице результатов",respondent.getUserId()));
                 }
 
-                long gradeQuestion = 100 * countWinner / countParticipant;
+                double gradeQuestion = 100.0 * countWinner / countParticipant;
 
-                resultQuestion.add(new UserWithScoreDto(userMapper.toUserInfoDto(respondent), gradeQuestion));
+                resultQuestion.add(new UserWithScoreDto(userMapper.toUserInfoDto(respondent), Math.round(gradeQuestion)));
             }
             resultQuestion = resultQuestion.stream()
                     .sorted(Comparator.comparing(UserWithScoreDto::getScore).reversed())
@@ -117,6 +128,18 @@ public class GradeServiceImpl implements GradeService{
 
             resultAllQuestions.add(new RatingQuestionDto(question.getText(), question.getCompetence().getText(), resultQuestion));
         }
+
+       if (page == null) {                  // если запрошены все вопросы - то сортировка по order
+
+           List<ContentOfPoll> listContentOfPoll = contentOfPollDao.getByPollId(UUID.fromString(pollId));
+
+           Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
+                   .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
+
+           resultAllQuestions = resultAllQuestions.stream()
+                   .sorted(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())))
+                   .collect(Collectors.toList());
+       }
 
         return new RatingResponseDto(resultAllQuestions);
 

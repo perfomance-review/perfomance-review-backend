@@ -11,10 +11,19 @@ import java.util.List;
 @AllArgsConstructor
 public class RatingQuestionDto {
 
+    /**
+     * Текст вопроса
+     */
     private String textQuestion;
 
+    /**
+     * Название компетенции
+     */
     private String textCompetence;
 
+    /**
+     * Список респондентов с оценками
+     */
     private List<UserWithScoreDto> usersWithScore;
 
 }
