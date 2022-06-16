@@ -3,7 +3,6 @@ package ru.hh.performance_review.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.PollDao;
@@ -18,12 +17,11 @@ import java.util.List;
 @Slf4j
 @EnableScheduling
 @RequiredArgsConstructor
-public class ScheduledServiceImpl implements ScheduledService {
+public class PollCompletedServiceImpl implements PollCompletedService {
     private final PollDao pollDao;
     private final RespondentsOfPollDao respondentsOfPollDao;
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void closePollsByDeadline() {
         List<Poll> polls = pollDao.findByDeadlineLessThan(LocalDate.now());
