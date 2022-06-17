@@ -74,4 +74,14 @@ public class RespondentsOfPollDao extends CommonDao {
                 .setParameter("pollId", pollId)
                 .uniqueResultOptional();
     }
+
+    public int setStatusByPolls(List<Poll> polls, PollStatus status) {
+        return getSession().createQuery("UPDATE RespondentsOfPoll r " +
+                "SET r.status = :status " +
+                "WHERE r.poll IN :polls " +
+                "AND NOT r.status = :status")
+            .setParameter("polls", polls)
+            .setParameter("status", status)
+            .executeUpdate();
+    }
 }

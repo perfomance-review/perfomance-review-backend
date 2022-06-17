@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
+@ComponentScan("ru.hh.performance_review.scheduler")
 @ComponentScan("ru.hh.performance_review.service")
 @ComponentScan("ru.hh.performance_review.controller")
 @ComponentScan("ru.hh.performance_review.dao")
