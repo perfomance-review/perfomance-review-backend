@@ -10,6 +10,7 @@ import ru.hh.performance_review.model.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -53,14 +54,13 @@ public class RespondentsOfPollDao extends CommonDao {
             .getResultList();
     }
 
-    public List<RespondentsOfPoll> getByUserIdWithActiveStatus(UUID userId) {
-        List<PollStatus> activeStatus = List.of(PollStatus.OPEN, PollStatus.PROGRESS);
+    public List<RespondentsOfPoll> getByUserIdAndStatuses(UUID userId, Set<PollStatus> statuses) {
         return getSession()
             .createQuery("SELECT r " +
                 "FROM RespondentsOfPoll r " +
-                "WHERE r.respondent.userId = :userId AND r.status IN :status", RespondentsOfPoll.class)
+                "WHERE r.respondent.userId = :userId AND r.status IN :statuses", RespondentsOfPoll.class)
             .setParameter("userId", userId)
-            .setParameterList("status", activeStatus)
+            .setParameterList("statuses", statuses)
             .getResultList();
     }
 

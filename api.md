@@ -2,9 +2,11 @@
 
 ### Получение опросов
 
-`GET /polls`
+`GET /polls&status=STATUS`
 
 `Cookie: user-id=USER_ID`
+
+`status - обязательный параметр c значением из [OPEN, PROGRESS, COMPLETED, CLOSED]`
 
 Возвращает для пользователя с указанным id (USER_ID) массив polls из объектов с полями:
 
@@ -15,6 +17,14 @@
 * **questionsCount** - количество вопросов
 * **respondentsCount** - количество респондентов
 * **status** - статус
+
+Пример:
+
+Получить активные опросы: 
+`GET /polls?status=OPEN&status=PROGRESS`
+
+Получить закрытые опросы
+`GET /polls?status=CLOSED`
 
 ### Получение информации об опросе
 
