@@ -95,7 +95,6 @@ public class PollController {
      */
     @GET
     @Path(value = "/result/{poll_id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getResultForUser(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId) {
         log.info("Get result /result/ " + pollId + " для пользователя: " + userId);
@@ -118,7 +117,6 @@ public class PollController {
      */
     @GET
     @Path(value = "/rating/{poll_id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRating(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId,
                               @QueryParam("page") Integer page) {
