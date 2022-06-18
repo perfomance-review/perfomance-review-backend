@@ -1,76 +1,162 @@
 package ru.hh.performance_review.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import ru.hh.performance_review.dao.ComparePairDao;
+import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.base.CommonDao;
+import ru.hh.performance_review.dto.RatingQuestionDto;
+import ru.hh.performance_review.dto.UserWithScoreDto;
 import ru.hh.performance_review.dto.response.GradeUserDto;
+import ru.hh.performance_review.dto.response.RatingResponseDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
-import ru.hh.performance_review.model.ComparePair;
-import ru.hh.performance_review.model.Competence;
-import ru.hh.performance_review.model.Poll;
-import ru.hh.performance_review.model.Question;
+import ru.hh.performance_review.mapper.UserMapper;
+import ru.hh.performance_review.model.*;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GradeServiceImpl implements GradeService{
 
     private final ComparePairDao comparePairDao;
     private final CommonDao commonDao;
+    private final UserMapper userMapper;
+    private final ContentOfPollDao contentOfPollDao;
+
 
     @Transactional
     @Override
     public GradeUserDto countGrade(String userId, String pollId) {
+        
+        checkPollStatus(pollId);
+        
+        List<ComparePair> results = comparePairDao.getRatingForUserByPollId(UUID.fromString(userId), UUID.fromString(pollId));
 
-       Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
+        if (CollectionUtils.isEmpty(results)) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("По опросу с id %s нет данных для оценки. Опрос не был пройден.", pollId));
+        }
 
-       if (poll == null) {
-           throw new BusinessServiceException(InternalErrorCode.UNKNOWN_POLL, String.format("pollId:%s", pollId));
-       }
-
-       if (poll.getDeadline().isAfter(LocalDate.now())) {
-           throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
-                   String.format("Опрос %s еще не завершен", pollId));
-       }
-
-       List<ComparePair> results = comparePairDao.findOptionalGetRatingForUser(UUID.fromString(userId), UUID.fromString(pollId));
-
-
-       Map<Question, List<ComparePair>> questionsComparePairs = results.stream()
+        Map<Question, List<ComparePair>> questionsComparePairs = results.stream()
                .collect(Collectors.groupingBy(ComparePair::getQuestion));
 
-       Map<String, Long> resultQuestion = new HashMap<>();
+        Map<String, Long> resultQuestion = new HashMap<>();
 
-       for (Question question: questionsComparePairs.keySet()) {
-           long countWinner = questionsComparePairs.get(question).stream()
+        for (Question question: questionsComparePairs.keySet()) {
+            long countWinner = questionsComparePairs.get(question).stream()
                    .filter(x -> x.getWinner().getUserId().equals(UUID.fromString(userId)))
                    .count();
-           double gradeQuestion = (9.0 * countWinner / questionsComparePairs.get(question).size()) + 1;
-           resultQuestion.put(question.getText(), Math.round(gradeQuestion));
-       }
+            double gradeQuestion = (9.0 * countWinner / questionsComparePairs.get(question).size()) + 1;
+            resultQuestion.put(question.getText(), Math.round(gradeQuestion));
+        }
 
 
-       Map<Competence, List<ComparePair>> competencesComparePairs = results.stream()
+        Map<Competence, List<ComparePair>> competencesComparePairs = results.stream()
                .filter(x -> Objects.nonNull(x.getQuestion().getCompetence()))
                .collect(Collectors.groupingBy(x -> x.getQuestion().getCompetence()));
 
-       Map<String, Long> resultCompetence = new HashMap<>();
+        Map<String, Long> resultCompetence = new HashMap<>();
 
-       for (Competence competence: competencesComparePairs.keySet()) {
-           long countWinner = competencesComparePairs.get(competence).stream()
+        for (Competence competence: competencesComparePairs.keySet()) {
+            long countWinner = competencesComparePairs.get(competence).stream()
                    .filter(x -> x.getWinner().getUserId().equals(UUID.fromString(userId)))
                    .count();
-           double gradeCompetence = (9.0 * countWinner / competencesComparePairs.get(competence).size()) + 1;
-           resultCompetence.put(competence.getText(), Math.round(gradeCompetence));
+            double gradeCompetence = (9.0 * countWinner / competencesComparePairs.get(competence).size()) + 1;
+            resultCompetence.put(competence.getText(), Math.round(gradeCompetence));
        }
 
-       return new GradeUserDto(resultQuestion, resultCompetence);
+        return new GradeUserDto(resultQuestion, resultCompetence);
     }
 
+    @Transactional
+    @Override
+    public RatingResponseDto countRating(String pollId, Integer page) {
+
+        checkPollStatus(pollId);
+
+        List<ComparePair> allResults = comparePairDao.getRatingForAllByPollIdPagination(UUID.fromString(pollId), page);  // все записи compare_pair по опросу
+
+        if (CollectionUtils.isEmpty(allResults)) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("По опросу с id %s нет данных для оценки. Опрос не был пройден.", pollId));
+        }
+
+        List<User> respondents = Stream.concat(allResults.stream().map(ComparePair::getPerson1),        // все участники (реальные) опроса
+                                               allResults.stream().map(ComparePair::getPerson2))
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Question, List<ComparePair>> questionsComparePairs = allResults.stream()        // все записи compare_pair в разрезе вопросов
+                .collect(Collectors.groupingBy(ComparePair::getQuestion));
+
+        List<RatingQuestionDto> resultAllQuestions = new ArrayList<>();         // результаты по все вопросам
+
+       for (Question question: questionsComparePairs.keySet()) {
+
+            List<UserWithScoreDto> resultQuestion = new ArrayList<>();         // результаты по 1 вопросу
+
+            for (User respondent : respondents) {
+
+                long countWinner = questionsComparePairs.get(question).stream()
+                        .filter(x -> x.getWinner().getUserId().equals(respondent.getUserId()))
+                        .count();
+                long countParticipant = questionsComparePairs.get(question).stream()
+                        .filter(x -> (x.getPerson1().getUserId().equals(respondent.getUserId()) || x.getPerson2().getUserId().equals(respondent.getUserId())))
+                        .count();
+
+                if (countParticipant == 0) {
+                    throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                            String.format("Респондент с id %s не найден в таблице результатов",respondent.getUserId()));
+                }
+
+                double gradeQuestion = 100.0 * countWinner / countParticipant;
+
+                resultQuestion.add(new UserWithScoreDto(userMapper.toUserInfoDto(respondent), Math.round(gradeQuestion)));
+            }
+            resultQuestion = resultQuestion.stream()
+                    .sorted(Comparator.comparing(UserWithScoreDto::getScore).reversed())
+                    .collect(Collectors.toList());
+
+            resultAllQuestions.add(new RatingQuestionDto(question.getText(), question.getCompetence().getText(), resultQuestion));
+        }
+
+       if (page == null) {                  // если запрошены все вопросы - то сортировка по order
+
+           List<ContentOfPoll> listContentOfPoll = contentOfPollDao.getByPollId(UUID.fromString(pollId));
+
+           Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
+                   .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
+
+           resultAllQuestions = resultAllQuestions.stream()
+                   .sorted(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())))
+                   .collect(Collectors.toList());
+       }
+
+        return new RatingResponseDto(resultAllQuestions);
+
+    }
+    
+    private void checkPollStatus(String pollId) {
+        
+        Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
+
+        if (poll == null) {
+            throw new BusinessServiceException(InternalErrorCode.UNKNOWN_POLL, String.format("pollId:%s", pollId));
+        }
+
+        if (poll.getDeadline().isAfter(LocalDate.now())) {
+            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                    String.format("Опрос %s еще не завершен", pollId));
+        }
+    }
+    
 }

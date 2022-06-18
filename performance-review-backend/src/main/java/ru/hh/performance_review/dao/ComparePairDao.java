@@ -37,7 +37,7 @@ public class ComparePairDao extends CommonDao {
     }
 
     @Transactional(readOnly = true)
-    public List<ComparePair> findOptionalGetRatingForUser(UUID userId, UUID pollId) {
+    public List<ComparePair> getRatingForUserByPollId(UUID userId, UUID pollId) {
         return getSession().createQuery(
                         "SELECT c " +
                                 " FROM ComparePair c " +
@@ -45,6 +45,37 @@ public class ComparePairDao extends CommonDao {
                                 "       AND (c.person1.userId = :userId OR c.person2.userId = :userId)", ComparePair.class)
                 .setParameter("pollId", pollId)
                 .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComparePair> getRatingForAllByPollId(UUID pollId) {
+        return getSession().createQuery(
+                        "SELECT c " +
+                                " FROM ComparePair c " +
+                                "    WHERE c.poll.pollId = :pollId ", ComparePair.class)
+                .setParameter("pollId", pollId)
+                .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComparePair> getRatingForAllByPollIdPagination(UUID pollId, Integer page) {
+
+        int flagAll = (page == null) ? 1 : 0;
+
+        return getSession().createQuery(
+                      "SELECT pair " +
+                                " FROM ComparePair pair " +
+                                " INNER JOIN ContentOfPoll cop " +
+                                " ON pair.poll = cop.poll " +
+                                "     AND pair.question = cop.question " +
+                                " WHERE " +
+                                "     pair.poll.pollId = :pollId " +
+                                "     AND pair.winner IS NOT NULL " +
+                                "     AND (cop.order = :numQuestion or 1 = :flagAll)", ComparePair.class)
+                .setParameter("pollId", pollId)
+                .setParameter("numQuestion", page)
+                .setParameter("flagAll", flagAll)
                 .getResultList();
     }
 
