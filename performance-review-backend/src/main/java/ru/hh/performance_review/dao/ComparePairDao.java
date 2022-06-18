@@ -42,7 +42,8 @@ public class ComparePairDao extends CommonDao {
                         "SELECT c " +
                                 " FROM ComparePair c " +
                                 "    WHERE c.poll.pollId = :pollId " +
-                                "       AND (c.person1.userId = :userId OR c.person2.userId = :userId)", ComparePair.class)
+                                "       AND (c.person1.userId = :userId OR c.person2.userId = :userId) " +
+                                "       AND c.winner IS NOT NULL", ComparePair.class)
                 .setParameter("pollId", pollId)
                 .setParameter("userId", userId)
                 .getResultList();
