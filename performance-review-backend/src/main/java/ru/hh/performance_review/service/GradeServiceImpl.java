@@ -9,11 +9,14 @@ import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.dto.RatingQuestionDto;
+import ru.hh.performance_review.dto.ResultCompetenceDto;
+import ru.hh.performance_review.dto.ResultQuestionDto;
 import ru.hh.performance_review.dto.UserWithScoreDto;
 import ru.hh.performance_review.dto.response.GradeUserDto;
 import ru.hh.performance_review.dto.response.RatingResponseDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
+import ru.hh.performance_review.mapper.GradeMapper;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.*;
 
@@ -31,6 +34,7 @@ public class GradeServiceImpl implements GradeService{
     private final CommonDao commonDao;
     private final UserMapper userMapper;
     private final ContentOfPollDao contentOfPollDao;
+    private final GradeMapper gradeMapper;
 
 
     @Transactional
@@ -49,32 +53,36 @@ public class GradeServiceImpl implements GradeService{
         Map<Question, List<ComparePair>> questionsComparePairs = results.stream()
                .collect(Collectors.groupingBy(ComparePair::getQuestion));
 
-        Map<String, Long> resultQuestion = new HashMap<>();
+        Map<Question,Double> questionsAndGrade = new HashMap<>();
 
         for (Question question: questionsComparePairs.keySet()) {
             long countWinner = questionsComparePairs.get(question).stream()
-                   .filter(x -> x.getWinner().getUserId().equals(UUID.fromString(userId)))
-                   .count();
+                    .filter(x -> x.getWinner().getUserId().equals(UUID.fromString(userId)))
+                    .count();
             double gradeQuestion = (9.0 * countWinner / questionsComparePairs.get(question).size()) + 1;
-            resultQuestion.put(question.getText(), Math.round(gradeQuestion));
+
+            questionsAndGrade.put(question, gradeQuestion);
         }
 
+        List<ContentOfPoll> listContentOfPoll = contentOfPollDao.getByPollId(UUID.fromString(pollId));
 
-        Map<Competence, List<ComparePair>> competencesComparePairs = results.stream()
-               .filter(x -> Objects.nonNull(x.getQuestion().getCompetence()))
-               .collect(Collectors.groupingBy(x -> x.getQuestion().getCompetence()));
+        Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
+                .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
 
-        Map<String, Long> resultCompetence = new HashMap<>();
+        List<ResultQuestionDto> resultQuestionDtoList = questionsAndGrade.entrySet().stream()
+                .map(x -> gradeMapper.toResultQuestionDto(x.getKey(), Math.round(x.getValue())))
+                .sorted(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())))
+                .collect(Collectors.toList());
 
-        for (Competence competence: competencesComparePairs.keySet()) {
-            long countWinner = competencesComparePairs.get(competence).stream()
-                   .filter(x -> x.getWinner().getUserId().equals(UUID.fromString(userId)))
-                   .count();
-            double gradeCompetence = (9.0 * countWinner / competencesComparePairs.get(competence).size()) + 1;
-            resultCompetence.put(competence.getText(), Math.round(gradeCompetence));
-       }
+        List<ResultCompetenceDto> resultCompetenceDtoList = questionsAndGrade.entrySet().stream()
+                .filter(x -> Objects.nonNull(x.getKey().getCompetence()))
+                .collect(Collectors.toMap(x -> x.getKey().getCompetence(), Map.Entry::getValue, (a, b) -> (a + b) /2))
+                .entrySet()
+                .stream()
+                .map(x -> gradeMapper.toResultCompetenceDto(x.getKey(), Math.round(x.getValue())))
+                .collect(Collectors.toList());
 
-        return new GradeUserDto(resultQuestion, resultCompetence);
+        return new GradeUserDto(resultQuestionDtoList, resultCompetenceDtoList);
     }
 
     @Transactional
@@ -126,7 +134,7 @@ public class GradeServiceImpl implements GradeService{
                     .sorted(Comparator.comparing(UserWithScoreDto::getScore).reversed())
                     .collect(Collectors.toList());
 
-            resultAllQuestions.add(new RatingQuestionDto(question.getText(), question.getCompetence().getText(), resultQuestion));
+            resultAllQuestions.add(gradeMapper.toRatingQuestionDto(question, resultQuestion));
         }
 
        if (page == null) {                  // если запрошены все вопросы - то сортировка по order

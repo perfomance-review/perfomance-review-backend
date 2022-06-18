@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import ru.hh.performance_review.dto.ResultCompetenceDto;
+import ru.hh.performance_review.dto.ResultQuestionDto;
 
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -14,12 +17,12 @@ import java.util.Map;
 public class GradeUserDto implements ResponseMessage{
 
     /**
-     * Map с вопросами и оценками по ним
+     * Список вопросов с оценками по ним
      */
-    private Map<String, Long> resultForQuestions;
+    private List<ResultQuestionDto> resultForQuestions;
     /**
-     * Map с компетенциями и оценками по ним
+     * Список компетенций с оценками по ним
      */
-    private Map<String, Long> resultForCompetences;
+    private List<ResultCompetenceDto> resultForCompetences;
 
 }
