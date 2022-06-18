@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Set;
 
 
 @Component
@@ -47,18 +48,16 @@ public class PollController {
     private final WinnerCompleteService winnerCompleteService;
     private final GradeService gradeService;
     private final ResultUserValidateService resultUserValidateService;
-    private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
-
 
     @GET
     @Path("polls")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPolls(@CookieParam("user-id") String userId) {
+    public Response getPolls(@CookieParam("user-id") String userId, @QueryParam("status") Set<String> statuses) {
         log.info("Получен запрос /polls");
         NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
         return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
-            .validate(v -> userValidateService.userIdValidate(userId))
-            .process(x -> pollService.getPollsByUserId(userId))
+            .validate(v -> pollValidateService.validatePollsByUserId(userId, statuses))
+            .process(x -> pollService.getPollsByUserId(userId, statuses))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
     }
@@ -162,7 +161,7 @@ public class PollController {
         log.info("Получен запрос pools/" + pollId);
         NewCookie cookie = new NewCookie(Cookie.USER_ID.getValue(), userId);
         return new HttpRequestHandler<String, PollByIdResponseDto>()
-            .validate(v -> pollValidateService.getPollByIdValidate(userId, pollId))
+            .validate(v -> pollValidateService.validatePollById(userId, pollId))
             .process(x -> pollService.getPollById(pollId, userId))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
