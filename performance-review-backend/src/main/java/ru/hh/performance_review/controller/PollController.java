@@ -48,6 +48,7 @@ public class PollController {
     private final WinnerCompleteService winnerCompleteService;
     private final GradeService gradeService;
     private final ResultUserValidateService resultUserValidateService;
+    private final QuestionService questionService;
 
     @GET
     @Path("polls")
@@ -96,7 +97,7 @@ public class PollController {
     @Path(value = "/result/{poll_id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getResultForUser(@PathParam("poll_id") String pollId, @CookieParam(CookieConst.USER_ID) String userId) {
-        log.info("Get result /result/ " + pollId + " для пользователя: " + userId);
+        log.info("Получен запрос /result/ " + pollId + " для пользователя: " + userId);
         NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
         return new HttpRequestHandler<String, GradeUserDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
@@ -127,6 +128,20 @@ public class PollController {
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }
+
+    @GET
+    @Path(value = "/questions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getQuestions(@CookieParam(CookieConst.USER_ID) String userId) {
+        log.info("Получен запрос /questions/ для пользователя: " + userId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, QuestionsResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> questionService.getAllQuestionsForManager(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
+
 
     /**
      * endpoint получения данных о пользователи по идентификатору пользователя
