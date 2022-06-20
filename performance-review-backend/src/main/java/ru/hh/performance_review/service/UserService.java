@@ -1,5 +1,6 @@
 package ru.hh.performance_review.service;
 
+import ru.hh.performance_review.dto.response.RespondentsResponseDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.dto.response.UsersInfoResponseDto;
 
@@ -23,4 +24,11 @@ public interface UserService {
     UserResponseDto getRespondentByUserId(String userId);
 
     UsersInfoResponseDto getAllUsers();
+
+    /**
+     * Метод получения всех респондентов для данного менеджера
+     *
+     * @return - UserInfo
+     */
+    RespondentsResponseDto getAllRespondentsForManager(String userId);
 }

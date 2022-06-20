@@ -2,6 +2,8 @@ package ru.hh.performance_review.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.control.MappingControl;
+import ru.hh.performance_review.dto.RespondentDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.dto.response.UsersInfoResponseRawDto;
@@ -21,6 +23,8 @@ public interface UserMapper {
     UserPollByIdResponseDto toUserPollByIdResponseDto(User user);
 
     UserInfoDto toUserInfoDto(User user);
+
+    RespondentDto toRespondentDto(User user);
 
     default String map(UUID value){
         return value.toString();

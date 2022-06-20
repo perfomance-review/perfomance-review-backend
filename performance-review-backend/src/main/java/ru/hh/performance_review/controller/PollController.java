@@ -129,6 +129,12 @@ public class PollController {
                 .forArgument(userId, cookie);
     }
 
+    /**
+     * endpoint получения всех вопросов для менеджера
+     *
+     * @param userId - идентификатор пользователя(менеджера)
+     * @return - ДТО с информацией о вопросах
+     */
     @GET
     @Path(value = "/questions")
     @Produces(MediaType.APPLICATION_JSON)
@@ -138,6 +144,25 @@ public class PollController {
         return new HttpRequestHandler<String, QuestionsResponseDto>()
                 .validate(v -> userValidateService.userIdValidate(userId))
                 .process(x -> questionService.getAllQuestionsForManager(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
+
+    /**
+     * endpoint получения всех респондентов для менеджера
+     *
+     * @param userId - идентификатор пользователя(менеджера)
+     * @return - ДТО с информацией о респондентах
+     */
+    @GET
+    @Path(value = "/respondents")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRespondents(@CookieParam(CookieConst.USER_ID) String userId) {
+        log.info("Получен запрос /respondents/ для пользователя: " + userId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, RespondentsResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> userService.getAllRespondentsForManager(userId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }

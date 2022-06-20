@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.UserDao;
+import ru.hh.performance_review.dto.RespondentDto;
+import ru.hh.performance_review.dto.response.RespondentsResponseDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.dto.response.UsersInfoResponseDto;
 import ru.hh.performance_review.dto.response.UsersInfoResponseRawDto;
@@ -53,5 +55,13 @@ public class UserServiceImpl implements UserService {
             .map(userMapper::toUsersInfoResponseRawDto)
             .collect(Collectors.toList())           ;
     return new UsersInfoResponseDto(responseDtoList);
+  }
+  @Transactional(readOnly = true)
+  @Override
+  public RespondentsResponseDto getAllRespondentsForManager(String userId) {
+    List<RespondentDto> respondents = userDao.getRespondentsByManagerId(UUID.fromString(userId)).stream()
+            .map(userMapper::toRespondentDto)
+            .collect(Collectors.toList());
+    return new RespondentsResponseDto(respondents);
   }
 }
