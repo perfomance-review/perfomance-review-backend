@@ -8,6 +8,7 @@ import ru.hh.performance_review.model.RoleEnum;
 import ru.hh.performance_review.model.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -42,5 +43,39 @@ public class UserDao extends CommonDao {
                                                   "WHERE u.id in (:paramParticipantsIds)", User.class )
                 .setParameterList("paramParticipantsIds", includedIds)
                 .getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findByUserEmailAndUserPassword(String userEmail, String userPassword) {
+        return getSession().createQuery(
+                "SELECT u FROM User u " +
+                        " WHERE u.email = :userEmail " +
+                        "   AND u.password = :userPassword" +
+                        "", User.class)
+                .setParameter("userEmail", userEmail)
+                .setParameter("userPassword", userPassword)
+                .uniqueResultOptional();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findByUserNameAndUserPassword(String username, String userPassword) {
+        return getSession().createQuery(
+                "SELECT u FROM User u " +
+                        " WHERE u.firstName = :username " +
+                        "   AND u.password = :userPassword" +
+                        "", User.class)
+                .setParameter("username", username)
+                .setParameter("userPassword", userPassword)
+                .uniqueResultOptional();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findByUserEmail(String userEmail) {
+        return getSession().createQuery(
+                "SELECT u FROM User u " +
+                        " WHERE u.email = :userEmail " +
+                        "", User.class)
+                .setParameter("userEmail", userEmail)
+                .uniqueResultOptional();
     }
 }
