@@ -58,7 +58,7 @@ public class PerformanceReviewSecurityServiceImpl implements PerformanceReviewSe
     @Override
     public void checkPerformanceReviewSecuredAuthority(CallContext callContext, PerformanceReviewSecured performanceReviewSecured) {
         if (!(performanceReviewSecured.roles().length == 0) && !hasAuthority(callContext, performanceReviewSecured.roles())) {
-            throw new AccessDeniedException(String.format("Access denied. Недостаточно привилегий. Отсутствует роль, текущие роли:%s", (Object) performanceReviewSecured.roles()));
+            throw new AccessDeniedException(String.format("Access denied. Недостаточно привилегий. Отсутствует роль, текущие роли:%s", String.join(", ", performanceReviewSecured.roles())));
         }
     }
 

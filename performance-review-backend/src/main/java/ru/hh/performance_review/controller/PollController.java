@@ -22,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Set;
 
 
 @Component
@@ -42,19 +43,18 @@ public class PollController {
     private final WinnerCompleteService winnerCompleteService;
     private final GradeService gradeService;
     private final ResultUserValidateService resultUserValidateService;
-    private final static String defaultUserId = "00000000-0000-0000-0000-000000000001";
 
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})
     @GET
     @Path("polls")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPolls(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+    public Response getPolls(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @QueryParam("status") Set<String> statuses) {
         log.info("Получен запрос /polls");
         NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
         String userId = SecurityContext.getUserId();
         return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
-            .validate(v -> userValidateService.userIdValidate(userId))
-            .process(x -> pollService.getPollsByUserId(userId))
+            .validate(v -> pollValidateService.validatePollsByUserId(userId, statuses))
+            .process(x -> pollService.getPollsByUserId(userId, statuses))
             .convert(objectConvertService::convertToJson)
             .forArgument(userId, cookie);
     }
@@ -96,7 +96,6 @@ public class PollController {
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})
     @GET
     @Path(value = "/result/{poll_id}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getResultForUser(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
                                      @PathParam("poll_id") String pollId) {
@@ -106,6 +105,32 @@ public class PollController {
         return new HttpRequestHandler<String, GradeUserDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
                 .process(x -> gradeService.countGrade(userId, pollId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
+    }
+
+    /**
+     * endpoint получения рейтинга всех респондентов по всем вопросам для данного опроса
+     * Поддерживает пагинацию, page - номер вопроса с 1
+     *
+     * @param jwtToken - jwtToken (менеджер)
+     * @param pollId - идентификатор опроса
+     * @param page   - номер вопроса, начиная с 1, необязательный
+     * @return - ДТО с вопросами, респондентами и оценками
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path(value = "/rating/{poll_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRating(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
+                              @PathParam("poll_id") String pollId,
+                              @QueryParam("page") Integer page) {
+        String userId = SecurityContext.getUserId();
+        log.info("Получен запрос /rating/ " + pollId + " для менеджера: " + userId);
+        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+        return new HttpRequestHandler<String, RatingResponseDto>()
+                .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
+                .process(x -> gradeService.countRating(pollId, page))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId, cookie);
     }
@@ -135,7 +160,7 @@ public class PollController {
      * endpoint получения данных об опросе по идентификатору опроса
      *
      * @param jwtToken - jwtToken
-     * @param pollId - идентификатор опроса
+     * @param pollId   - идентификатор опроса
      * @return - ДТО с информацией об опросе
      */
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})
@@ -148,10 +173,10 @@ public class PollController {
         NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
         String userId = SecurityContext.getUserId();
         return new HttpRequestHandler<String, PollByIdResponseDto>()
-            .validate(v -> pollValidateService.getPollByIdValidate(userId, pollId))
-            .process(x -> pollService.getPollById(pollId, userId))
-            .convert(objectConvertService::convertToJson)
-            .forArgument(userId, cookie);
+                .validate(v -> pollValidateService.validatePollById(userId, pollId))
+                .process(x -> pollService.getPollById(pollId, userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId, cookie);
     }
 
     /**
@@ -182,7 +207,7 @@ public class PollController {
      * endpoint который отдаёт вопрос и сформированные пары по опросу
      *
      * @param jwtToken - идентификатор пользователя
-     * @param pollId - pollId запроса
+     * @param pollId   - pollId запроса
      * @return - ДТО с информацией об опросе
      */
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})

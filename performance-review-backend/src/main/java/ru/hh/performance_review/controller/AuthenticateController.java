@@ -52,11 +52,11 @@ public class AuthenticateController {
             response.put("userEmail", authUserInfo.userEmail());
             response.put(CookieConst.ACCESS_TOKEN, authUserInfo.accessToken());
             SecurityContext.set(authUserInfo);
+
             return Response.status(Response.Status.OK.getStatusCode())
                     .cookie(cookie)
                     .entity(response)
                     .build();
-
 
         } catch (BadCredentialsException e) {
             log.error("", e);

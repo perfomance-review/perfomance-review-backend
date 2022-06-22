@@ -1,7 +1,7 @@
 package ru.hh.performance_review.security.context;
 
 
-public class SecurityContext {
+public final class SecurityContext {
     private static final ThreadLocal<CallContext> threadLocalContext = new ThreadLocal<>();
 
     public static void set(AuthUserInfo authUserInfo) {

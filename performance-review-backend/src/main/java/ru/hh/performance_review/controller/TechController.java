@@ -8,6 +8,7 @@ import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.security.annotation.JwtTokenCookie;
 import ru.hh.performance_review.security.annotation.PerformanceReviewSecured;
+import ru.hh.performance_review.security.context.SecurityContext;
 import ru.hh.performance_review.security.context.SecurityRole;
 import ru.hh.performance_review.service.UserService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
@@ -40,6 +41,7 @@ public class TechController {
     @Path("getallusers")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        String userId = SecurityContext.getUserId();
         log.info("Получен запрос /getallusers");
         NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
         return new HttpRequestHandler<String, ResponseMessage>()

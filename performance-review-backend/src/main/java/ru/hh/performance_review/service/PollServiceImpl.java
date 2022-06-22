@@ -19,7 +19,12 @@ import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.mapper.ComparePairOfPollMapper;
 import ru.hh.performance_review.mapper.PollMapper;
 import ru.hh.performance_review.mapper.UserMapper;
-import ru.hh.performance_review.model.*;
+import ru.hh.performance_review.model.ComparePair;
+import ru.hh.performance_review.model.ContentOfPoll;
+import ru.hh.performance_review.model.Poll;
+import ru.hh.performance_review.model.PollStatus;
+import ru.hh.performance_review.model.Question;
+import ru.hh.performance_review.model.RespondentsOfPoll;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,19 +43,22 @@ public class PollServiceImpl implements PollService {
     private final ComparePairOfPollMapper comparePairOfPollMapper;
 
     @Override
-    public PollsByUserIdResponseDto getPollsByUserId(String userId) {
+    public PollsByUserIdResponseDto getPollsByUserId(String userId, Set<String> statuses) {
         UUID userUUID = UUID.fromString(userId);
+        Set<PollStatus> pollStatuses = statuses.stream()
+            .map(PollStatus::valueOf)
+            .collect(Collectors.toSet());
         Map<Poll, PollStatus> pollsStatus = respondentsOfPollDao
-                .getByUserIdWithActiveStatus(userUUID)
-                .stream()
-                .collect(Collectors.toMap(RespondentsOfPoll::getPoll, RespondentsOfPoll::getStatus));
+            .getByUserIdAndStatuses(userUUID, pollStatuses)
+            .stream()
+            .collect(Collectors.toMap(RespondentsOfPoll::getPoll, RespondentsOfPoll::getStatus));
         if (pollsStatus.size() == 0) {
             return new PollsByUserIdResponseDto(Collections.emptyList());
         }
         List<UUID> poolIds = pollsStatus.keySet()
-                .stream()
-                .map(Poll::getPollId)
-                .collect(Collectors.toList());
+            .stream()
+            .map(Poll::getPollId)
+            .collect(Collectors.toList());
         List<ContentOfPoll> content = contentOfPollDao.getByPollIds(poolIds);
         List<RespondentsOfPoll> respondents = respondentsOfPollDao.getByPollIds(poolIds);
         List<PollByUserIdResponseDto> polls = new ArrayList<>();

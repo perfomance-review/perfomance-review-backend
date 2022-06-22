@@ -11,12 +11,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.security.context.AuthUserInfo;
+import ru.hh.performance_review.security.exception.InvalidSecuredConfigurationException;
 import ru.hh.performance_review.security.exception.UnauthorizedException;
 
 import javax.annotation.PostConstruct;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -81,12 +80,20 @@ public class JwtTokenProvider {
                     .firstName((String) claims.get(FIRST_NAME))
                     .lastName((String) claims.get(LAST_NAME))
                     .middleName((String) claims.get(MIDDLE_NAME))
-                    .roles((Set<String>) claims.get(ROLES))
+                    .roles(getRoles(claims.get(ROLES)))
                     .build();
 
         } catch (Exception e) {
             log.error(InternalErrorCode.UNAUTHORIZED_TOKEN.getErrorDescription(), e);
             throw new UnauthorizedException(e.getMessage(), e);
         }
+    }
+
+    private Set<String> getRoles(Object o) {
+        if(o instanceof List){
+            List<String> strings = (List<String>) o;
+            return new HashSet<>(strings);
+        }
+        throw new InvalidSecuredConfigurationException("Ошибка получения ролей из токена");
     }
 }

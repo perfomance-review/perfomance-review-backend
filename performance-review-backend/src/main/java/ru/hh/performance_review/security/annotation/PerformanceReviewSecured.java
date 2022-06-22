@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 public @interface PerformanceReviewSecured {
 
     /**
-     * @return Строковый имя ролей, для вызова метода
+     * @return перечень ролей, доступные для вызова данного ендпоинта
      */
     String[] roles() default "";
 

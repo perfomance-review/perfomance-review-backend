@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface JwtTokenCookie {
 
     /**
-     * @return Строковый имя ролей, для вызова метода
+     * @return jwt токен
      */
     String jwtToken() default "";
 

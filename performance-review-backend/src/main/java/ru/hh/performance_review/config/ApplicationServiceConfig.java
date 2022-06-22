@@ -22,7 +22,8 @@ import javax.ws.rs.ext.ContextResolver;
         "ru.hh.performance_review.mapper",
         "ru.hh.performance_review.dao",
         "ru.hh.performance_review.service",
-        "ru.hh.performance_review.controller"
+        "ru.hh.performance_review.controller",
+        "ru.hh.performance_review.scheduler"
 })
 public class ApplicationServiceConfig {
 
