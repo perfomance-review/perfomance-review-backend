@@ -16,7 +16,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +44,6 @@ public class AuthenticateController {
 
         try {
             AuthUserInfo authUserInfo = performanceReviewSecurityService.userAuthenticate(userAuthenticateDto);
-            NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN,
-                    authUserInfo.accessToken());
 
             Map<Object, Object> response = new HashMap<>();
             response.put("userEmail", authUserInfo.userEmail());
@@ -54,7 +51,6 @@ public class AuthenticateController {
             SecurityContext.set(authUserInfo);
 
             return Response.status(Response.Status.OK.getStatusCode())
-                    .cookie(cookie)
                     .entity(response)
                     .build();
 

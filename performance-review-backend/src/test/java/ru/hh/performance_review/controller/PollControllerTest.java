@@ -1,5 +1,6 @@
 package ru.hh.performance_review.controller;
 
+import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import ru.hh.nab.starter.NabApplication;
 import ru.hh.nab.testbase.NabTestBase;
@@ -17,7 +18,7 @@ public class PollControllerTest extends NabTestBase {
         return NabApplication.builder().configureJersey().bindToRoot().build();
     }
 
-  //  @Test
+    @Test
     public void getPolls_success() {
         String userId = UUID.randomUUID().toString();
         String url = "/polls";

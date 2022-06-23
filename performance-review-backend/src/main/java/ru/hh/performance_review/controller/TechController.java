@@ -18,7 +18,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.function.Function;
 
@@ -43,12 +42,11 @@ public class TechController {
     public Response getUser(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
         String userId = SecurityContext.getUserId();
         log.info("Получен запрос /getallusers");
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
         return new HttpRequestHandler<String, ResponseMessage>()
                 .validate(v -> Function.identity())
                 .process(x -> userService.getAllUsers())
                 .convert(objectConvertService::convertToJson)
-                .forArgument("00000000-0000-0000-0000-000000000001", cookie);
+                .forArgument(jwtToken);
     }
 
 }

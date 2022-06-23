@@ -1,6 +1,7 @@
 package ru.hh.performance_review.service.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,6 @@ import ru.hh.performance_review.security.exception.SecuredErrorCode;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,8 +27,8 @@ public class ContextPerformanceReviewServiceImpl implements ContextPerformanceRe
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Object[] args = joinPoint.getArgs();
 
-        String jwtToken = getJwtToken(method, args);
         Set<String> roles = getRoles(method);
+        String jwtToken = getJwtToken(method, args);
 
         return new ContextPerformanceReviewDto()
                 .setJwtToken(jwtToken)
@@ -44,23 +44,21 @@ public class ContextPerformanceReviewServiceImpl implements ContextPerformanceRe
     private Set<String> getRoles(Method method) {
         Annotation[] methodAnnotations = method.getAnnotations();
         String[] roles = null;
-        boolean isExistsAnnotationPerformanceReviewSecured = false;
         for (Annotation paramAnnotation : methodAnnotations) {
             if (paramAnnotation instanceof PerformanceReviewSecured) {
-                isExistsAnnotationPerformanceReviewSecured = true;
                 roles = ((PerformanceReviewSecured) paramAnnotation).roles();
                 break;
             }
         }
 
-        if (isExistsAnnotationPerformanceReviewSecured && roles.length == 0) {
+        if (roles == null || roles.length == 0 || StringUtils.isBlank(roles[0])) {
             String errorMessage = String.format(SecuredErrorCode.INVALID_SECURED_CONFIGURATION.getErrorDescription(),
                     String.format("roles is NULL or EMPTY в аннотации @PerformanceReviewSecured метод:'%s'", method));
             log.error(errorMessage);
             throw new InvalidSecuredConfigurationException(errorMessage);
         }
 
-        return roles == null ? Collections.emptySet() : new HashSet<>(Arrays.asList(roles));
+        return new HashSet<>(Arrays.asList(roles));
     }
 
     /**

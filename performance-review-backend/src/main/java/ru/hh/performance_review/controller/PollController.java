@@ -19,7 +19,6 @@ import ru.hh.performance_review.service.validate.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
@@ -50,13 +49,13 @@ public class PollController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPolls(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @QueryParam("status") Set<String> statuses) {
         log.info("Получен запрос /polls");
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
+
         String userId = SecurityContext.getUserId();
         return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
-            .validate(v -> pollValidateService.validatePollsByUserId(userId, statuses))
-            .process(x -> pollService.getPollsByUserId(userId, statuses))
-            .convert(objectConvertService::convertToJson)
-            .forArgument(userId, cookie);
+                .validate(v -> pollValidateService.validatePollsByUserId(userId, statuses))
+                .process(x -> pollService.getPollsByUserId(userId, statuses))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId);
     }
 
     /**
@@ -77,20 +76,20 @@ public class PollController {
                               @RequestBody List<String> includedIdsString) {
 
         log.info("Получен запрос /start/" + pollId + " с телом: {} ", includedIdsString);
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
+
         String userId = SecurityContext.getUserId();
         return new HttpRequestHandler<String, PollProgressDto>()
                 .validate(v -> starPollValidateService.validateDataStartPoll(pollId, userId, includedIdsString))
                 .process(x -> startPollService.doStartPoll(pollId, userId, includedIdsString))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
      * endpoint получения оценки данного пользователя по всем вопросам и компетенциям данного опроса
      *
      * @param jwtToken - jwtToken
-     * @param pollId - идентификатор опроса
+     * @param pollId   - идентификатор опроса
      * @return - ДТО с вопросами, компетенциями и оценками
      */
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})
@@ -101,12 +100,12 @@ public class PollController {
                                      @PathParam("poll_id") String pollId) {
         String userId = SecurityContext.getUserId();
         log.info("Get result /result/" + pollId + " для пользователя: " + userId);
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
+
         return new HttpRequestHandler<String, GradeUserDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
                 .process(x -> gradeService.countGrade(userId, pollId))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
@@ -114,8 +113,8 @@ public class PollController {
      * Поддерживает пагинацию, page - номер вопроса с 1
      *
      * @param jwtToken - jwtToken (менеджер)
-     * @param pollId - идентификатор опроса
-     * @param page   - номер вопроса, начиная с 1, необязательный
+     * @param pollId   - идентификатор опроса
+     * @param page     - номер вопроса, начиная с 1, необязательный
      * @return - ДТО с вопросами, респондентами и оценками
      */
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
@@ -127,12 +126,12 @@ public class PollController {
                               @QueryParam("page") Integer page) {
         String userId = SecurityContext.getUserId();
         log.info("Получен запрос /rating/ " + pollId + " для менеджера: " + userId);
-        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+
         return new HttpRequestHandler<String, RatingResponseDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
                 .process(x -> gradeService.countRating(pollId, page))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
@@ -148,12 +147,12 @@ public class PollController {
     public Response getUser(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
         log.info("Получен запрос /getuser");
         String userId = SecurityContext.getUserId();
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
+
         return new HttpRequestHandler<String, UserResponseDto>()
                 .validate(v -> userValidateService.userIdValidate(userId))
                 .process(x -> userService.getRespondentByUserId(userId))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
@@ -170,13 +169,14 @@ public class PollController {
     public Response getPoolById(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
                                 @PathParam("poll_id") String pollId) {
         log.info("Получен запрос pools/" + pollId);
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
+
         String userId = SecurityContext.getUserId();
+
         return new HttpRequestHandler<String, PollByIdResponseDto>()
                 .validate(v -> pollValidateService.validatePollById(userId, pollId))
                 .process(x -> pollService.getPollById(pollId, userId))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
@@ -194,13 +194,13 @@ public class PollController {
     public Response updateWinner(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
                                  @RequestBody UpdateWinnerRequestDto updateWinnerRequestDto) {
         log.info("Получен запрос /updatewinner с телом: {}", updateWinnerRequestDto);
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
         String userId = SecurityContext.getUserId();
+
         return new HttpRequestHandler<String, ResponseMessage>()
                 .validate(v -> ratingRequestValidateService.validateUpdateWinnerRequestDto(userId, updateWinnerRequestDto))
                 .process(x -> winnerCompleteService.updateWinner(userId, updateWinnerRequestDto))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
@@ -218,13 +218,13 @@ public class PollController {
     public Response getComparePairsOfPoll(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
                                           @PathParam(RequestParams.POLL_ID) String pollId) {
         log.info("Получен запрос /comparepairsofpoll с poll_id: {}", pollId);
-        NewCookie cookie = new NewCookie(CookieConst.ACCESS_TOKEN, jwtToken);
         String userId = SecurityContext.getUserId();
+
         return new HttpRequestHandler<String, ResponseMessage>()
                 .validate(v -> pollValidateService.validateComparePairsOfPoll(userId, pollId))
                 .process(x -> pollService.getComparePairOfPollDto(userId, pollId))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
 }

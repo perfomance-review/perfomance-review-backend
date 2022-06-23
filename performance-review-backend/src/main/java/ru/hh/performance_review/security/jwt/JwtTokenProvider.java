@@ -82,10 +82,10 @@ public class JwtTokenProvider {
                     .middleName((String) claims.get(MIDDLE_NAME))
                     .roles(getRoles(claims.get(ROLES)))
                     .build();
-
         } catch (Exception e) {
-            log.error(InternalErrorCode.UNAUTHORIZED_TOKEN.getErrorDescription(), e);
-            throw new UnauthorizedException(e.getMessage(), e);
+            String errMsg = String.format("%s: %s", InternalErrorCode.UNAUTHORIZED_TOKEN.getErrorDescription(), e.getLocalizedMessage());
+            log.error(errMsg, e);
+            throw new UnauthorizedException(errMsg, e);
         }
     }
 
