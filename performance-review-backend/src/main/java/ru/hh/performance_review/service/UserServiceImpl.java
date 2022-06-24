@@ -12,8 +12,10 @@ import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.RoleEnum;
 import ru.hh.performance_review.model.User;
+import ru.hh.performance_review.security.context.AuthUserInfo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,5 +55,17 @@ public class UserServiceImpl implements UserService {
             .map(userMapper::toUsersInfoResponseRawDto)
             .collect(Collectors.toList())           ;
     return new UsersInfoResponseDto(responseDtoList);
+  }
+
+
+  @Override
+  public AuthUserInfo getAuthUserByUserNameAndUserPassword(String userEmail, String userPassword) {
+      Optional<User> userOptional = userDao.findByUserEmailAndUserPassword(userEmail, userPassword);
+      return userMapper.toAuthUserInfo(userOptional.orElse(null));
+  }
+
+  @Override
+  public User findByUserEmail(String userEmail) {
+    return userDao.findByUserEmail(userEmail).orElse(null);
   }
 }

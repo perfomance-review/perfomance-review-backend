@@ -11,20 +11,24 @@ public class ErrorDto implements ResponseMessage {
     /**
      * Код ошибки
      */
-    private final int errCode;
+    private Integer errCode;
     /**
      * Описание ошибки
      */
-    private final String errorMessage;
+    private String errorMessage;
     /**
      * Внутреннее описание ошибки
      */
-    private final String businessMessage;
+    private String businessMessage;
 
     public ErrorDto(int errCode, String errorMessage, String businessMessage) {
         this.errCode = errCode;
         this.errorMessage = errorMessage;
         this.businessMessage = businessMessage;
+    }
+
+    public ErrorDto(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public ErrorDto(BusinessServiceException e) {
