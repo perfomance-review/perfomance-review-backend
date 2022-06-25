@@ -2,7 +2,6 @@ package ru.hh.performance_review.service;
 
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.dto.response.UsersInfoResponseDto;
-import ru.hh.performance_review.model.User;
 import ru.hh.performance_review.security.context.AuthUserInfo;
 
 /**
@@ -26,7 +25,5 @@ public interface UserService {
 
     UsersInfoResponseDto getAllUsers();
 
-    AuthUserInfo getAuthUserByUserNameAndUserPassword(String userEmail, String UserPassword);
-
-    User findByUserEmail(String userEmail);
+    AuthUserInfo findAuthUserInfoByUserEmail(String userEmail);
 }

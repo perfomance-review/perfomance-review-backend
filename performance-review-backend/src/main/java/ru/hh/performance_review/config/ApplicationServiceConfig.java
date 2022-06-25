@@ -11,6 +11,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.impl.DefaultJwtParser;
 import org.springframework.context.annotation.*;
+import ru.hh.performance_review.security.crypted.CryptedService;
+import ru.hh.performance_review.security.crypted.CryptedServiceImpl;
 import ru.hh.performance_review.security.jwt.JwtTokenProvider;
 import ru.hh.performance_review.service.ObjectMapperContextResolverImpl;
 
@@ -58,5 +60,10 @@ public class ApplicationServiceConfig {
     @Bean
     public JwtParser jwtParser() {
         return new DefaultJwtParser();
+    }
+
+    @Bean
+    public CryptedService cryptedService(){
+        return new CryptedServiceImpl();
     }
 }

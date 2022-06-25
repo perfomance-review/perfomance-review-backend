@@ -14,4 +14,7 @@
     <include file="20220604122300_change_data_poll.xml" relativeToChangelogFile="true"/>
     <include file="20220607214400_change_uuid_users.xml" relativeToChangelogFile="true"/>
     <include file="20220608191000_add_polls.xml" relativeToChangelogFile="true"/>
+    <include file="20220625132300_increase_size_column_password_of_users.xml" relativeToChangelogFile="true"/>
+    <include file="20220625132400_add_index_to_table_users.xml" relativeToChangelogFile="true"/>
+    <include file="20220625132500_encodepassword_of_table_users.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

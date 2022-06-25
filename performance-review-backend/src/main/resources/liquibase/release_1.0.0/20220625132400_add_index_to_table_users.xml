@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220625132400_add_index_to_table_users.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220625132400" author="User: Igor Matyushenko Email: ig0r.matyushenk0@mail.ru"
+               context="schema" runOnChange="true" runInTransaction="false">
+        <sql>
+            CREATE INDEX IF NOT EXISTS users_passwords_idx ON users(password);
+        </sql>
+        <comment>
+            Add index per users(password)
+        </comment>
+    </changeSet>
+</databaseChangeLog>
