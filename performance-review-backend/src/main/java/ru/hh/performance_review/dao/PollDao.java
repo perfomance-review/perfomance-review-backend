@@ -8,6 +8,7 @@ import ru.hh.performance_review.model.RespondentsOfPoll;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class PollDao extends CommonDao {
@@ -22,5 +23,12 @@ public class PollDao extends CommonDao {
                 "FROM Poll p WHERE p.deadline < :date", Poll.class)
             .setParameter("date", date)
             .getResultList();
+    }
+
+    public List<Poll> getAllByManagerId(UUID userId) {
+        return getSession().createQuery("SELECT p FROM Poll p " +
+                                                  "WHERE p.manager.userId = :userId", Poll.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 }
