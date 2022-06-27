@@ -138,39 +138,43 @@ public class PollController {
     /**
      * endpoint получения всех вопросов для менеджера
      *
-     * @param userId - идентификатор пользователя(менеджера)
+     * @param jwtToken - jwtToken (менеджер)
      * @return - ДТО с информацией о вопросах
      */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
     @GET
     @Path(value = "/questions")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getQuestions(@CookieParam(CookieConst.USER_ID) String userId) {
+    public Response getQuestions(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        String userId = SecurityContext.getUserId();
         log.info("Получен запрос /questions/ для пользователя: " + userId);
-        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+
         return new HttpRequestHandler<String, QuestionsResponseDto>()
                 .validate(v -> userValidateService.userIdValidate(userId))
                 .process(x -> questionService.getAllQuestionsForManager(userId))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
     /**
      * endpoint получения всех респондентов для менеджера
      *
-     * @param userId - идентификатор пользователя(менеджера)
+     * @param jwtToken - jwtToken (менеджер)
      * @return - ДТО с информацией о респондентах
      */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
     @GET
     @Path(value = "/respondents")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRespondents(@CookieParam(CookieConst.USER_ID) String userId) {
+    public Response getRespondents(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        String userId = SecurityContext.getUserId();
         log.info("Получен запрос /respondents/ для пользователя: " + userId);
-        NewCookie cookie = new NewCookie(CookieConst.USER_ID, userId);
+
         return new HttpRequestHandler<String, RespondentsResponseDto>()
                 .validate(v -> userValidateService.userIdValidate(userId))
                 .process(x -> userService.getAllRespondentsForManager(userId))
                 .convert(objectConvertService::convertToJson)
-                .forArgument(userId, cookie);
+                .forArgument(userId);
     }
 
 
