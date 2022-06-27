@@ -2,7 +2,7 @@ package ru.hh.performance_review.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.response.ResponseMessage;
@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.function.Function;
 
-@RestController
+@Component
 @RequiredArgsConstructor
 @Slf4j
 @Path("/")
@@ -47,6 +47,18 @@ public class TechController {
                 .process(x -> userService.getAllUsers())
                 .convert(objectConvertService::convertToJson)
                 .forArgument(jwtToken);
+    }
+
+    @GET
+    @Path("allusers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getallusers() {
+        log.info("Получен запрос /getallusers");
+        return new HttpRequestHandler<String, ResponseMessage>()
+                .validate(v -> Function.identity())
+                .process(x -> userService.getAllUsers())
+                .convert(objectConvertService::convertToJson)
+                .forArgument("jwtToken");
     }
 
 }
