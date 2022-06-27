@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class CookieConst {
 
     public static final String USER_ID = "user-id";
+    public static final String ACCESS_TOKEN = "access-token";
 }

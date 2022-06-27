@@ -143,6 +143,7 @@ public class PollServiceImpl implements PollService {
         List<ComparePair> comparePairList = stringListMap.get(questionId);
 
         List<ComparePairsOfPollInfoDto> pairsOfPollInfo = comparePairOfPollMapper.toComparePairsOfPollInfoDtos(comparePairList);
+        Collections.shuffle(pairsOfPollInfo);
 
         return new ComparePairsOfPollDto()
                 .setPollId(pollIdStr)

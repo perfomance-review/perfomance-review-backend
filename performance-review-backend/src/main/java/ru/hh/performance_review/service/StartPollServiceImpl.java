@@ -15,6 +15,7 @@ import ru.hh.performance_review.model.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ public class StartPollServiceImpl implements StartPollService{
     private final UserDao userDao;
     private final ContentOfPollDao contentOfPollDao;
     private final PollMapper pollMapper;
+    private static final Random random = new Random();
 
 
     @Transactional
@@ -44,10 +46,17 @@ public class StartPollServiceImpl implements StartPollService{
         List<Question> questions = contentOfPollDao.getQuestions(poll);
         List<User> participants = userDao.getIncluded(includedIds);
 
+        ComparePair comparePair;
+
         for (Question question : questions) {
             for (int i = 0; i < participants.size(); i++) {
                 for (int j = i+1; j < participants.size(); j++) {
-                    ComparePair comparePair = new ComparePair(poll, question, participants.get(i), participants.get(j), user);
+                    if (random.nextBoolean()) {
+                        comparePair = new ComparePair(poll, question, participants.get(i), participants.get(j), user);
+                    }
+                    else {
+                        comparePair = new ComparePair(poll, question, participants.get(j), participants.get(i), user);
+                    }
                     commonDao.save(comparePair);
                 }
             }

@@ -12,7 +12,6 @@ import ru.hh.performance_review.exception.ErrorDto;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.exception.ValidateException;
 
-import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -50,7 +49,7 @@ public class HttpRequestHandler<I, R extends ResponseMessage> {
         return this;
     }
 
-    public Response forArgument(I request, NewCookie cookie) {
+    public Response forArgument(I request) {
         log.info("Запрос: {}", request);
         try {
             validator.accept(request);
@@ -59,37 +58,33 @@ public class HttpRequestHandler<I, R extends ResponseMessage> {
             log.info("Ответ: {}", jsonResponse);
 
             return Response.status(Response.Status.OK.getStatusCode())
-                    .cookie(cookie)
                     .entity(jsonResponse)
                     .build();
 
         } catch (ValidateException e) {
             log.error("", e);
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode())
-                    .cookie(cookie)
                     .entity(converter.apply(new ErrorDto(e)))
                     .build();
         } catch (BusinessServiceException e) {
             log.error("", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
-                    .cookie(cookie)
                     .entity(converter.apply(new ErrorDto(e)))
                     .build();
         } catch (DataAccessResourceFailureException | JDBCConnectionException | CannotCreateTransactionException e) {
             log.error("", e);
-            return createErrorResponse(DB_ACCESS_ERROR, cookie);
+            return createErrorResponse(DB_ACCESS_ERROR);
         } catch (DataAccessException e) {
             log.error("", e);
-            return createErrorResponse(DB_SQL_ERROR, cookie);
+            return createErrorResponse(DB_SQL_ERROR);
         } catch (Exception e) {
             log.error("", e);
-            return createErrorResponse(INTERNAL_ERROR, cookie);
+            return createErrorResponse(INTERNAL_ERROR);
         }
     }
 
-    private Response createErrorResponse(InternalErrorCode internalErrorCode, NewCookie cookie) {
+    private Response createErrorResponse(InternalErrorCode internalErrorCode) {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
-                .cookie(cookie)
                 .entity(converter.apply(new ErrorDto(internalErrorCode)))
                 .build();
     }

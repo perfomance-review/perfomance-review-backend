@@ -8,17 +8,23 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.impl.DefaultJwtParser;
+import org.springframework.context.annotation.*;
+import ru.hh.performance_review.security.jwt.JwtTokenProvider;
+import ru.hh.performance_review.service.ObjectMapperContextResolverImpl;
 
+import javax.ws.rs.ext.ContextResolver;
+
+@EnableAspectJAutoProxy
 @Configuration
-@ComponentScan("ru.hh.performance_review.scheduler")
-@ComponentScan("ru.hh.performance_review.service")
-@ComponentScan("ru.hh.performance_review.controller")
-@ComponentScan("ru.hh.performance_review.dao")
-@ComponentScan("ru.hh.performance_review.mapper")
+@ComponentScan({
+        "ru.hh.performance_review.mapper",
+        "ru.hh.performance_review.dao",
+        "ru.hh.performance_review.service",
+        "ru.hh.performance_review.controller",
+        "ru.hh.performance_review.scheduler"
+})
 public class ApplicationServiceConfig {
 
     @Bean(name = "objectMapper")
@@ -36,5 +42,21 @@ public class ApplicationServiceConfig {
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         return objectMapper;
+    }
+
+    @Primary
+    @Bean
+    public ContextResolver<ObjectMapper> ObjectMapperContextResolverImpl(ObjectMapper objectMapper){
+        return new ObjectMapperContextResolverImpl<>(objectMapper);
+    }
+
+    @Bean
+    public JwtTokenProvider jwtTokenProvider() {
+        return new JwtTokenProvider();
+    }
+
+    @Bean
+    public JwtParser jwtParser() {
+        return new DefaultJwtParser();
     }
 }
