@@ -2,7 +2,7 @@ package ru.hh.performance_review.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.dto.request.UserAuthenticateDto;
@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@Component
 @RequiredArgsConstructor
 @Slf4j
 @Path("/")
