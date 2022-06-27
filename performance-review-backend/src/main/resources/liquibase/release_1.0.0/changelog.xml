@@ -14,4 +14,5 @@
     <include file="20220604122300_change_data_poll.xml" relativeToChangelogFile="true"/>
     <include file="20220607214400_change_uuid_users.xml" relativeToChangelogFile="true"/>
     <include file="20220608191000_add_polls.xml" relativeToChangelogFile="true"/>
+    <include file="20220619135200_change_table_question.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
