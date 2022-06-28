@@ -42,6 +42,7 @@ public class PollController {
     private final WinnerCompleteService winnerCompleteService;
     private final GradeService gradeService;
     private final ResultUserValidateService resultUserValidateService;
+    private final QuestionService questionService;
 
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})
     @GET
@@ -133,6 +134,49 @@ public class PollController {
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
     }
+
+    /**
+     * endpoint получения всех вопросов для менеджера
+     *
+     * @param jwtToken - jwtToken (менеджер)
+     * @return - ДТО с информацией о вопросах
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path(value = "/questions")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getQuestions(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        String userId = SecurityContext.getUserId();
+        log.info("Получен запрос /questions/ для пользователя: " + userId);
+
+        return new HttpRequestHandler<String, QuestionsResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> questionService.getAllQuestionsForManager(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId);
+    }
+
+    /**
+     * endpoint получения всех респондентов для менеджера
+     *
+     * @param jwtToken - jwtToken (менеджер)
+     * @return - ДТО с информацией о респондентах
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path(value = "/respondents")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRespondents(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        String userId = SecurityContext.getUserId();
+        log.info("Получен запрос /respondents/ для пользователя: " + userId);
+
+        return new HttpRequestHandler<String, RespondentsResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> userService.getAllRespondentsForManager(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId);
+    }
+
 
     /**
      * endpoint получения данных о пользователи по идентификатору пользователя
