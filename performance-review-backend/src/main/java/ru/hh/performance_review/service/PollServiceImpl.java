@@ -11,9 +11,12 @@ import ru.hh.performance_review.dao.PollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dto.PollByUserIdResponseDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
+import ru.hh.performance_review.dto.request.CreatePollRequestDto;
 import ru.hh.performance_review.dto.response.ComparePairsOfPollDto;
+import ru.hh.performance_review.dto.response.EmptyResponseDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
+import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.dto.response.compairofpoll.ComparePairsOfPollInfoDto;
 import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.mapper.ComparePairOfPollMapper;
@@ -152,6 +155,11 @@ public class PollServiceImpl implements PollService {
                 .setText(question.getText())
                 .setHasNext(hasNext)
                 .setPairsOfPollInfo(pairsOfPollInfo);
+    }
+
+    @Override
+    public ResponseMessage createPoll(final CreatePollRequestDto request) {
+        return new EmptyResponseDto();
     }
 
     private ContentOfPoll getContentOfPollMin(List<ContentOfPoll> contentOfPolls,

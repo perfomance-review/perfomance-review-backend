@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import ru.hh.performance_review.consts.RequestParams;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
+import ru.hh.performance_review.dto.request.CreatePollRequestDto;
 import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
 import ru.hh.performance_review.dto.response.*;
 import ru.hh.performance_review.security.annotation.JwtTokenCookie;
@@ -57,6 +58,21 @@ public class PollController {
                 .process(x -> pollService.getPollsByUserId(userId, statuses))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
+    }
+
+
+    @PerformanceReviewSecured(roles = {SecurityRole.MANAGER})
+    @POST
+    @Path("polls")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createPoll(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @RequestBody CreatePollRequestDto request) {
+        log.info("Получен запрос /polls");
+        String userId = SecurityContext.getUserId();
+        return new HttpRequestHandler<String, ResponseMessage>()
+            .validate(v -> pollValidateService.validateCreatePollRequestDto(request))
+            .process(x -> pollService.createPoll(request))
+            .convert(objectConvertService::convertToJson)
+            .forArgument(String.valueOf(userId));
     }
 
     /**

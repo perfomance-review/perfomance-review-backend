@@ -1,8 +1,10 @@
 package ru.hh.performance_review.service;
 
+import ru.hh.performance_review.dto.request.CreatePollRequestDto;
 import ru.hh.performance_review.dto.response.ComparePairsOfPollDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
+import ru.hh.performance_review.dto.response.ResponseMessage;
 
 import java.util.Set;
 
@@ -20,4 +22,6 @@ public interface PollService {
      * @return - ComparePairsOfPollDto
      */
     ComparePairsOfPollDto getComparePairOfPollDto(String userId, String pollId);
+
+    ResponseMessage createPoll(CreatePollRequestDto request);
 }
