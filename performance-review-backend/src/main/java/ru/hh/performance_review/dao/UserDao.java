@@ -1,6 +1,7 @@
 package ru.hh.performance_review.dao;
 
 import org.hibernate.SessionFactory;
+import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.base.CommonDao;
@@ -24,6 +25,16 @@ public class UserDao extends CommonDao {
         return getSession().createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
+    public List<User> getRespondentsByManagerId(UUID userId) {
+
+        return getSession().createQuery("SELECT u FROM User u " +
+                                                  "WHERE u.role = :roleRespondent " +
+                                                  "    AND u.leader.userId = :userId", User.class)
+                .setParameter("roleRespondent", RoleEnum.RESPONDENT)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
     public List<User> getExcluded(List<UUID> includedIds, UUID currentUserId) {
 
         return getSession().createQuery("SELECT u " +
@@ -43,30 +54,6 @@ public class UserDao extends CommonDao {
                                                   "WHERE u.id in (:paramParticipantsIds)", User.class )
                 .setParameterList("paramParticipantsIds", includedIds)
                 .getResultList();
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<User> findByUserEmailAndUserPassword(String userEmail, String userPassword) {
-        return getSession().createQuery(
-                "SELECT u FROM User u " +
-                        " WHERE u.email = :userEmail " +
-                        "   AND u.password = :userPassword" +
-                        "", User.class)
-                .setParameter("userEmail", userEmail)
-                .setParameter("userPassword", userPassword)
-                .uniqueResultOptional();
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<User> findByUserNameAndUserPassword(String username, String userPassword) {
-        return getSession().createQuery(
-                "SELECT u FROM User u " +
-                        " WHERE u.firstName = :username " +
-                        "   AND u.password = :userPassword" +
-                        "", User.class)
-                .setParameter("username", username)
-                .setParameter("userPassword", userPassword)
-                .uniqueResultOptional();
     }
 
     @Transactional(readOnly = true)

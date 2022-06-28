@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220619135200_change_table_question.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220619135200" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+            ALTER TABLE IF EXISTS question ADD COLUMN IF NOT EXISTS manager_id UUID;
+        </sql>
+        <rollback>
+            <sql>
+                ALTER TABLE IF EXISTS question DROP COLUMN IF EXISTS manager_id;
+            </sql>
+        </rollback>
+        <comment>
+            Add column manager_id into table question
+        </comment>
+    </changeSet>
+</databaseChangeLog>

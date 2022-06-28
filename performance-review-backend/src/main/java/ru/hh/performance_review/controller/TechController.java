@@ -2,7 +2,7 @@ package ru.hh.performance_review.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
 import ru.hh.performance_review.dto.response.ResponseMessage;
@@ -21,7 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.function.Function;
 
-@RestController
+@Component
 @RequiredArgsConstructor
 @Slf4j
 @Path("/")

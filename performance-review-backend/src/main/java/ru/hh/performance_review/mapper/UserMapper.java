@@ -3,6 +3,7 @@ package ru.hh.performance_review.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import ru.hh.performance_review.dto.RespondentDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
 import ru.hh.performance_review.dto.response.UsersInfoResponseRawDto;
@@ -28,9 +29,12 @@ public interface UserMapper {
 
     UserInfoDto toUserInfoDto(User user);
 
+    RespondentDto toRespondentDto(User user);
+
     @Mapping(target = "id", source = "user.userId")
     @Mapping(target = "accessToken", ignore = true)
     @Mapping(target = "userEmail", source = "user.email")
+    @Mapping(target = "password", source = "user.password")
     @Mapping(target = "firstName", source = "user.firstName")
     @Mapping(target = "lastName", source = "user.secondName")
     @Mapping(target = "middleName", source = "user.middleName")

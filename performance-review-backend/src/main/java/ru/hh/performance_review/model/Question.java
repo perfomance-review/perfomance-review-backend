@@ -34,10 +34,17 @@ public class Question extends AbstractAuditableBaseEntity {
     private String text;
 
     /**
-     * id компетенции
+     * компетенция
      */
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "competence_id")
     private Competence competence;
+
+    /**
+     * менеджер, который создал этот вопрос
+     */
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "manager_id")
+    private User manager;
 
 }
