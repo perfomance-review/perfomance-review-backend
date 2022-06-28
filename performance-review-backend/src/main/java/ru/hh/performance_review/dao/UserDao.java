@@ -57,30 +57,6 @@ public class UserDao extends CommonDao {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> findByUserEmailAndUserPassword(String userEmail, String userPassword) {
-        return getSession().createQuery(
-                "SELECT u FROM User u " +
-                        " WHERE u.email = :userEmail " +
-                        "   AND u.password = :userPassword" +
-                        "", User.class)
-                .setParameter("userEmail", userEmail)
-                .setParameter("userPassword", userPassword)
-                .uniqueResultOptional();
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<User> findByUserNameAndUserPassword(String username, String userPassword) {
-        return getSession().createQuery(
-                "SELECT u FROM User u " +
-                        " WHERE u.firstName = :username " +
-                        "   AND u.password = :userPassword" +
-                        "", User.class)
-                .setParameter("username", username)
-                .setParameter("userPassword", userPassword)
-                .uniqueResultOptional();
-    }
-
-    @Transactional(readOnly = true)
     public Optional<User> findByUserEmail(String userEmail) {
         return getSession().createQuery(
                 "SELECT u FROM User u " +

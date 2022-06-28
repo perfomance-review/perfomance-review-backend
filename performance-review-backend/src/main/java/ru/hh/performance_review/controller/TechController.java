@@ -49,16 +49,4 @@ public class TechController {
                 .forArgument(jwtToken);
     }
 
-    @GET
-    @Path("allusers")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getallusers() {
-        log.info("Получен запрос /getallusers");
-        return new HttpRequestHandler<String, ResponseMessage>()
-                .validate(v -> Function.identity())
-                .process(x -> userService.getAllUsers())
-                .convert(objectConvertService::convertToJson)
-                .forArgument("jwtToken");
-    }
-
 }

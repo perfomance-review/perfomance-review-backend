@@ -34,6 +34,7 @@ public interface UserMapper {
     @Mapping(target = "id", source = "user.userId")
     @Mapping(target = "accessToken", ignore = true)
     @Mapping(target = "userEmail", source = "user.email")
+    @Mapping(target = "password", source = "user.password")
     @Mapping(target = "firstName", source = "user.firstName")
     @Mapping(target = "lastName", source = "user.secondName")
     @Mapping(target = "middleName", source = "user.middleName")
