@@ -84,4 +84,5 @@ public class RespondentsOfPollDao extends CommonDao {
             .setParameter("status", status)
             .executeUpdate();
     }
+
 }

@@ -67,12 +67,12 @@ public class PollController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createPoll(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @RequestBody CreatePollRequestDto request) {
         log.info("Получен запрос /polls");
-        String userId = SecurityContext.getUserId();
+        String managerId = SecurityContext.getUserId();
         return new HttpRequestHandler<String, ResponseMessage>()
-            .validate(v -> pollValidateService.validateCreatePollRequestDto(request, userId))
-            .process(x -> pollService.createPoll(request, userId))
+            .validate(v -> pollValidateService.validateCreatePollRequestDto(request, managerId))
+            .process(x -> pollService.createPoll(request, managerId))
             .convert(objectConvertService::convertToJson)
-            .forArgument(String.valueOf(userId));
+            .forArgument(String.valueOf(managerId));
     }
 
     /**
