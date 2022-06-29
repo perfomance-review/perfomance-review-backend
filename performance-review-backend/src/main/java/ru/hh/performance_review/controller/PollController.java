@@ -69,8 +69,8 @@ public class PollController {
         log.info("Получен запрос /polls");
         String userId = SecurityContext.getUserId();
         return new HttpRequestHandler<String, ResponseMessage>()
-            .validate(v -> pollValidateService.validateCreatePollRequestDto(request))
-            .process(x -> pollService.createPoll(request))
+            .validate(v -> pollValidateService.validateCreatePollRequestDto(request, userId))
+            .process(x -> pollService.createPoll(request, userId))
             .convert(objectConvertService::convertToJson)
             .forArgument(String.valueOf(userId));
     }

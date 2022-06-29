@@ -23,5 +23,11 @@ public interface PollService {
      */
     ComparePairsOfPollDto getComparePairOfPollDto(String userId, String pollId);
 
-    ResponseMessage createPoll(CreatePollRequestDto request);
+    /**
+     * Создает опрос
+     *
+     * @param request - запрос на создание опроса
+     * @param userId - идентификатор пользователя
+     */
+    ResponseMessage createPoll(CreatePollRequestDto request, final String userId);
 }

@@ -9,7 +9,6 @@ import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.service.validate.utils.Utils;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Set;
 
 @Slf4j
@@ -33,7 +32,8 @@ public class PollValidateServiceImpl implements PollValidateService {
     }
 
     @Override
-    public void validateCreatePollRequestDto(final CreatePollRequestDto request) {
+    public void validateCreatePollRequestDto(final CreatePollRequestDto request, final String userId) {
+        Utils.validateUuidAsString(userId, RequestParams.USER_ID);
         request.getQuestionIds().forEach(o -> Utils.validateUuidAsString(o, RequestParams.QUESTION_ID));
         request.getRespondentIds().forEach(o -> Utils.validateUuidAsString(o, RequestParams.RESPONDENT_ID));
         Utils.validateDateAsString(request.getDeadline(), "deadline");

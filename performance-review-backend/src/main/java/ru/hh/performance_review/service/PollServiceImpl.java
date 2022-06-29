@@ -9,6 +9,7 @@ import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.PollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
+import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dto.PollByUserIdResponseDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
 import ru.hh.performance_review.dto.request.CreatePollRequestDto;
@@ -28,6 +29,7 @@ import ru.hh.performance_review.model.Poll;
 import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.model.Question;
 import ru.hh.performance_review.model.RespondentsOfPoll;
+import ru.hh.performance_review.model.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,6 +43,7 @@ public class PollServiceImpl implements PollService {
     private final ContentOfPollDao contentOfPollDao;
     private final PollDao pollDao;
     private final ComparePairDao comparePairDao;
+    private final UserDao userDao;
     private final PollMapper pollMapper;
     private final UserMapper userMapper;
     private final ComparePairOfPollMapper comparePairOfPollMapper;
@@ -158,7 +161,12 @@ public class PollServiceImpl implements PollService {
     }
 
     @Override
-    public ResponseMessage createPoll(final CreatePollRequestDto request) {
+    public ResponseMessage createPoll(final CreatePollRequestDto request, String userId) {
+        User user = userDao.getByID(User.class, UUID.fromString(userId));
+        Poll poll = pollMapper.fromCreatePollRequestDto(request, user);
+        pollDao.save(poll);
+
+
         return new EmptyResponseDto();
     }
 

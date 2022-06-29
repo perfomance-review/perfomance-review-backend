@@ -25,6 +25,7 @@ public interface PollValidateService {
      * Валидация запроса на создание опроса
      *
      * @param request - запрос на создание опроса
+     * @param userId - идентификатор пользователя
      */
-    void validateCreatePollRequestDto(CreatePollRequestDto request);
+    void validateCreatePollRequestDto(CreatePollRequestDto request, String userId);
 }
