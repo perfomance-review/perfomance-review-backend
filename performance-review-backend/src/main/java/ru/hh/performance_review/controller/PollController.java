@@ -60,6 +60,27 @@ public class PollController {
     }
 
     /**
+     * endpoint, который возвращает все опросы менеджера
+     *
+     * @param jwtToken          -
+     * @return - ДТО с информацией об опросах
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path("pollsmanager")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllPollsForManager(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        log.info("Получен запрос /pollsmanager");
+
+        String userId = SecurityContext.getUserId();
+        return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> pollService.getAllPollsByManagerId(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId);
+    }
+
+    /**
      * endpoint начала опроса. Меняет статус опроса и формирует пары для опроса
      *
      * @param jwtToken          -

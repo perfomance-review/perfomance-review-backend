@@ -20,4 +20,6 @@ public interface PollService {
      * @return - ComparePairsOfPollDto
      */
     ComparePairsOfPollDto getComparePairOfPollDto(String userId, String pollId);
+
+    PollsByUserIdResponseDto getAllPollsByManagerId(String managerId);
 }
