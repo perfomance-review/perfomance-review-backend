@@ -74,6 +74,7 @@ public class PollServiceImpl implements PollService {
                 .count();
             polls.add(pollMapper.toPollByUserIdResponseDto(poll, respondentsCount, questionsCount, pollsStatus.get(poll)));
         }
+        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline));
         return new PollsByUserIdResponseDto(polls);
     }
 
