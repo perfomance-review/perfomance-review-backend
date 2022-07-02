@@ -121,13 +121,39 @@ public class PollController {
     public Response getResultForUser(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
                                      @PathParam("poll_id") String pollId) {
         String userId = SecurityContext.getUserId();
-        log.info("Get result /result/" + pollId + " для пользователя: " + userId);
+        log.info("Получен запрос /result/" + pollId + " для пользователя: " + userId);
 
         return new HttpRequestHandler<String, GradeUserDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
                 .process(x -> gradeService.countGrade(userId, pollId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
+    }
+
+    /**
+     * endpoint получения оценки респондента по всем вопросам и компетенциям данного опроса
+     * доступен менеджеру
+     *
+     * @param jwtToken - jwtToken
+     * @param pollId   - идентификатор опроса
+     * @param userId   - идентификатор респондента
+     * @return - ДТО с вопросами, компетенциями и оценками
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path(value = "/result/{poll_id}/{user_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getResultUserForManager(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
+                                            @PathParam("poll_id") String pollId, @PathParam("user_id") String userId) {
+
+        String managerId = SecurityContext.getUserId();
+        log.info("Получен запрос /result/" + pollId + "/" + userId);
+
+        return new HttpRequestHandler<String, GradeUserDto>()
+                .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
+                .process(x -> gradeService.countGrade(userId, pollId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(managerId);
     }
 
     /**
