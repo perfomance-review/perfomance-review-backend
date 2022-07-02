@@ -26,6 +26,23 @@
 Получить закрытые опросы
 `GET /polls?status=CLOSED`
 
+### Получение опросов менеджера (все)
+
+`GET /pollsmanager`
+
+`Cookie: access-token`
+
+Возвращает для пользователя с ролью "MANAGER" массив polls из объектов с полями:
+
+* **pollId** - id опроса
+* **title** - название опроса
+* **description** - описание опроса
+* **deadline** - дедлайн
+* **questionsCount** - количество вопросов
+* **respondentsCount** - количество респондентов
+* **status** - статус опроса
+
+
 ### Получение информации об опросе
 
 `GET /polls/{poll_id}`
