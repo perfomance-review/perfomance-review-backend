@@ -74,7 +74,7 @@ public class PollServiceImpl implements PollService {
                 .count();
             polls.add(pollMapper.toPollByUserIdResponseDto(poll, respondentsCount, questionsCount, pollsStatus.get(poll)));
         }
-        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline));
+        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline).thenComparing(PollByUserIdResponseDto::getTitle));
         return new PollsByUserIdResponseDto(polls);
     }
 
@@ -112,7 +112,7 @@ public class PollServiceImpl implements PollService {
 
             polls.add(pollMapper.toPollByUserIdResponseDto(poll, respondentsCount, questionsCount, status));
         }
-        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline));
+        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline).thenComparing(PollByUserIdResponseDto::getTitle));
         return new PollsByUserIdResponseDto(polls);
     }
 

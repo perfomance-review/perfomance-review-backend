@@ -142,9 +142,7 @@ public class GradeServiceImpl implements GradeService{
            Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
                    .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
 
-           resultAllQuestions = resultAllQuestions.stream()
-                   .sorted(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())))
-                   .collect(Collectors.toList());
+           resultAllQuestions.sort(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())));
        }
 
         return new RatingResponseDto(resultAllQuestions);
