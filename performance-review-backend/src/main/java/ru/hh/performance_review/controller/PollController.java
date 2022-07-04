@@ -226,7 +226,7 @@ public class PollController {
 
 
     /**
-     * endpoint получения данных о пользователи по идентификатору пользователя
+     * endpoint получения данных текущего пользователя
      *
      * @param jwtToken - jwtToken
      * @return - ДТО с информацией о пользователе
@@ -244,6 +244,29 @@ public class PollController {
                 .process(x -> userService.getRespondentByUserId(userId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
+    }
+
+    /**
+     * endpoint получения данных о пользователе по идентификатору пользователя
+     * доступен менеджеру, администратору
+     *
+     * @param jwtToken - jwtToken
+     * @param userId   - идентификатор респондента
+     * @return - ДТО с информацией о пользователе
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path("getuser/{user_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserById(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @PathParam("user_id") String userId) {
+        log.info("Получен запрос /getuser/" + userId);
+        String managerId = SecurityContext.getUserId();
+
+        return new HttpRequestHandler<String, UserResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> userService.getRespondentByUserId(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(managerId);
     }
 
     /**
