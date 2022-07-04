@@ -43,6 +43,7 @@ public class PollController {
     private final GradeService gradeService;
     private final ResultUserValidateService resultUserValidateService;
     private final QuestionService questionService;
+    private final CompetenceService competenceService;
 
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER, SecurityRole.RESPONDENT})
     @GET
@@ -220,6 +221,21 @@ public class PollController {
         return new HttpRequestHandler<String, RespondentsResponseDto>()
                 .validate(v -> userValidateService.userIdValidate(userId))
                 .process(x -> userService.getAllRespondentsForManager(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId);
+    }
+
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path(value = "/competences")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCompetences(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        String userId = SecurityContext.getUserId();
+        log.info("Получен запрос /competences для пользователя: " + userId);
+
+        return new HttpRequestHandler<String, CompetencesResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> competenceService.getCompetences())
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
     }
