@@ -20,6 +20,8 @@ import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
 import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.dto.response.compairofpoll.ComparePairsOfPollInfoDto;
+import ru.hh.performance_review.exception.ErrorCode;
+import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.mapper.ComparePairOfPollMapper;
 import ru.hh.performance_review.mapper.ContentOfPollMapper;
@@ -183,8 +185,12 @@ public class PollServiceImpl implements PollService {
         for (UUID userId : usersIds) {
             User respondent = userMap.get(userId);
             if (respondent == null) {
-                //какой код ошибки?
-               throw new ValidateException(103, String.format("Не найдена респондент по userId %s", userId));
+               throw new ValidateException(2, String.format("Не найден пользователь: %s", userId));
+            }
+            User leader = respondent.getLeader();
+            if (leader == null || !leader.getUserId().toString().equals(managerId)) {
+                throw new ValidateException(5, String.format("Пользователь %s не соответствует менеджеру: %s", userId, managerId));
+
             }
             RespondentsOfPoll respondentOfPoll = respondentsOfPollMapper.toRespondentsOfPoll(poll, respondent, PollStatus.OPEN);
             respondentsOfPollDao.save(respondentOfPoll);
@@ -200,8 +206,7 @@ public class PollServiceImpl implements PollService {
             UUID questionId = questionIds.get(i);
             Question question = questionMap.get(questionId);
             if (question == null) {
-                //какой код ошибки?
-                throw new ValidateException(103, String.format("Не найден вопрос по questionId %s", questionId));
+                throw new ValidateException(4, String.format("Не найден вопрос по questionId %s", questionId));
             }
             ContentOfPoll contentOfPoll = contentOfPollMapper.toContentOfPoll(poll, question, i + 1);
             contentOfPollDao.save(contentOfPoll);

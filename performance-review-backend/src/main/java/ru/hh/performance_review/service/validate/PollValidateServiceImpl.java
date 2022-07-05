@@ -16,8 +16,10 @@ import java.util.Set;
 @Service
 public class PollValidateServiceImpl implements PollValidateService {
 
-    public static final int QUESTIONS_LIMIT = 10;
-    public static final int RESPONDENTS_LIMIT = 10;
+    public static final int QUESTIONS_MAX_LIMIT = 10;
+    public static final int QUESTIONS_MIN_LIMIT = 1;
+    public static final int RESPONDENTS_MAX_LIMIT = 10;
+    public static final int RESPONDENTS_MIN_LIMIT = 3;
 
     @Override
     public void validatePollById(String userId, String pollId) {
@@ -39,17 +41,31 @@ public class PollValidateServiceImpl implements PollValidateService {
     public void validateCreatePollRequestDto(final CreatePollRequestDto request, final String userId) {
         Utils.validateUuidAsString(userId, RequestParams.USER_ID);
 
-        List<String> questionIds = request.getQuestionIds();
-        if (questionIds.size() > QUESTIONS_LIMIT) {
+        if (request.getName() == null) {
             throw new ValidateException(InternalErrorCode.VALIDATION_ERROR,
-                String.format("Количество вопросов больше %s: %s", QUESTIONS_LIMIT, questionIds.size()));
+                "Поле name не может быть пустым");
+
+        }
+
+        List<String> questionIds = request.getQuestionIds();
+        if (questionIds == null || questionIds.size() < QUESTIONS_MIN_LIMIT) {
+            throw new ValidateException(InternalErrorCode.VALIDATION_ERROR,
+                String.format("Количество вопросов меньше %s", QUESTIONS_MIN_LIMIT));
+        }
+        if (questionIds.size() > QUESTIONS_MAX_LIMIT) {
+            throw new ValidateException(InternalErrorCode.VALIDATION_ERROR,
+                String.format("Количество вопросов больше %s: %s", QUESTIONS_MAX_LIMIT, questionIds.size()));
         }
         questionIds.forEach(o -> Utils.validateUuidAsString(o, RequestParams.QUESTION_ID));
 
         List<String> respondentIds = request.getRespondentIds();
-        if (respondentIds.size() > RESPONDENTS_LIMIT) {
+        if (respondentIds == null || respondentIds.size() < RESPONDENTS_MIN_LIMIT) {
             throw new ValidateException(InternalErrorCode.VALIDATION_ERROR,
-                String.format("Количество респондентов больше %s: %s", RESPONDENTS_LIMIT, questionIds.size()));
+                String.format("Количество респондентов меньше %s", RESPONDENTS_MIN_LIMIT));
+        }
+        if (respondentIds.size() > RESPONDENTS_MAX_LIMIT) {
+            throw new ValidateException(InternalErrorCode.VALIDATION_ERROR,
+                String.format("Количество респондентов больше %s: %s", RESPONDENTS_MAX_LIMIT, questionIds.size()));
         }
         respondentIds.forEach(o -> Utils.validateUuidAsString(o, RequestParams.RESPONDENT_ID));
 
