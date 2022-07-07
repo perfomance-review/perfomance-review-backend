@@ -8,16 +8,25 @@ import org.springframework.util.CollectionUtils;
 import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.PollDao;
+import ru.hh.performance_review.dao.QuestionDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
+import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dto.PollByUserIdResponseDto;
 import ru.hh.performance_review.dto.UserPollByIdResponseDto;
+import ru.hh.performance_review.dto.request.CreatePollRequestDto;
 import ru.hh.performance_review.dto.response.ComparePairsOfPollDto;
+import ru.hh.performance_review.dto.response.EmptyResponseDto;
 import ru.hh.performance_review.dto.response.PollByIdResponseDto;
 import ru.hh.performance_review.dto.response.PollsByUserIdResponseDto;
+import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.dto.response.compairofpoll.ComparePairsOfPollInfoDto;
+import ru.hh.performance_review.exception.ErrorCode;
+import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.exception.ValidateException;
 import ru.hh.performance_review.mapper.ComparePairOfPollMapper;
+import ru.hh.performance_review.mapper.ContentOfPollMapper;
 import ru.hh.performance_review.mapper.PollMapper;
+import ru.hh.performance_review.mapper.RespondentsOfPollMapper;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.ComparePair;
 import ru.hh.performance_review.model.ContentOfPoll;
@@ -25,8 +34,10 @@ import ru.hh.performance_review.model.Poll;
 import ru.hh.performance_review.model.PollStatus;
 import ru.hh.performance_review.model.Question;
 import ru.hh.performance_review.model.RespondentsOfPoll;
+import ru.hh.performance_review.model.User;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,9 +49,13 @@ public class PollServiceImpl implements PollService {
     private final ContentOfPollDao contentOfPollDao;
     private final PollDao pollDao;
     private final ComparePairDao comparePairDao;
+    private final UserDao userDao;
+    private final QuestionDao questionDao;
     private final PollMapper pollMapper;
     private final UserMapper userMapper;
     private final ComparePairOfPollMapper comparePairOfPollMapper;
+    private final RespondentsOfPollMapper respondentsOfPollMapper;
+    private final ContentOfPollMapper contentOfPollMapper;
 
     @Override
     public PollsByUserIdResponseDto getPollsByUserId(String userId, Set<String> statuses) {
@@ -191,6 +206,51 @@ public class PollServiceImpl implements PollService {
                 .setText(question.getText())
                 .setHasNext(hasNext)
                 .setPairsOfPollInfo(pairsOfPollInfo);
+    }
+
+    @Override
+    public ResponseMessage createPoll(final CreatePollRequestDto request, String managerId) {
+        User manager = userDao.getByID(User.class, UUID.fromString(managerId));
+
+        Poll poll = pollMapper.fromCreatePollRequestDto(request, manager);
+        pollDao.save(poll);
+
+        List<UUID> usersIds = request.getRespondentIds().stream()
+            .map(UUID::fromString)
+            .collect(Collectors.toList());
+        Map<UUID, User> userMap = userDao.getAllByIds(usersIds).stream()
+            .collect(Collectors.toMap(User::getUserId, Function.identity()));
+
+        for (UUID userId : usersIds) {
+            User respondent = userMap.get(userId);
+            if (respondent == null) {
+               throw new ValidateException(2, String.format("Не найден пользователь: %s", userId));
+            }
+            User leader = respondent.getLeader();
+            if (leader == null || !leader.getUserId().toString().equals(managerId)) {
+                throw new ValidateException(5, String.format("Пользователь %s не соответствует менеджеру: %s", userId, managerId));
+
+            }
+            RespondentsOfPoll respondentOfPoll = respondentsOfPollMapper.toRespondentsOfPoll(poll, respondent, PollStatus.OPEN);
+            respondentsOfPollDao.save(respondentOfPoll);
+        }
+
+        List<UUID> questionIds = request.getQuestionIds().stream()
+            .map(UUID::fromString)
+            .collect(Collectors.toList());
+        Map<UUID, Question> questionMap = questionDao.getAllByIds(questionIds).stream()
+            .collect(Collectors.toMap(Question::getQuestionId, Function.identity()));
+
+        for (int i = 0; i < questionIds.size(); i++) {
+            UUID questionId = questionIds.get(i);
+            Question question = questionMap.get(questionId);
+            if (question == null) {
+                throw new ValidateException(4, String.format("Не найден вопрос по questionId %s", questionId));
+            }
+            ContentOfPoll contentOfPoll = contentOfPollMapper.toContentOfPoll(poll, question, i + 1);
+            contentOfPollDao.save(contentOfPoll);
+        }
+        return new EmptyResponseDto();
     }
 
     private ContentOfPoll getContentOfPollMin(List<ContentOfPoll> contentOfPolls,
