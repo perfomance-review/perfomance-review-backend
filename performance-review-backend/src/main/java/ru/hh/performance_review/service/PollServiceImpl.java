@@ -89,6 +89,45 @@ public class PollServiceImpl implements PollService {
                 .count();
             polls.add(pollMapper.toPollByUserIdResponseDto(poll, respondentsCount, questionsCount, pollsStatus.get(poll)));
         }
+        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline).thenComparing(PollByUserIdResponseDto::getTitle));
+        return new PollsByUserIdResponseDto(polls);
+    }
+
+    @Override
+    public PollsByUserIdResponseDto getAllPollsByManagerId(String managerId) {
+
+        List<Poll> allPollsForManager = pollDao.getAllByManagerId(UUID.fromString(managerId));
+        if (CollectionUtils.isEmpty(allPollsForManager)) {
+            return new PollsByUserIdResponseDto(Collections.emptyList());
+        }
+        List<UUID> pollIds = allPollsForManager.stream()
+                .map(Poll::getPollId)
+                .collect(Collectors.toList());
+        List<RespondentsOfPoll> respondentsOfPollList = respondentsOfPollDao.getByPollIds(pollIds);
+        List<ContentOfPoll> contentOfPollList = contentOfPollDao.getByPollIds(pollIds);
+
+        List<PollByUserIdResponseDto> polls = new ArrayList<>();
+
+        for (Poll poll : allPollsForManager) {
+            long respondentsCount = respondentsOfPollList.stream()
+                    .filter(x -> x.getPoll().equals(poll))
+                    .count();
+            long questionsCount = contentOfPollList.stream()
+                    .filter(x -> x.getPoll().equals(poll))
+                    .count();
+
+            Set<PollStatus> statusesOfPoll = respondentsOfPollList.stream()
+                    .filter(x->x.getPoll().equals(poll))
+                    .map(RespondentsOfPoll::getStatus)
+                    .collect(Collectors.toSet());
+
+            // Если все записи respondentsOfPoll по опросу имеют одинаковый статус - то это статус опроса
+            // Иначе - статус опроса PROGRESS (уже начат, но еще не завершен)
+            PollStatus status = (statusesOfPoll.size() == 1) ? statusesOfPoll.iterator().next() : PollStatus.PROGRESS;
+
+            polls.add(pollMapper.toPollByUserIdResponseDto(poll, respondentsCount, questionsCount, status));
+        }
+        polls.sort(Comparator.comparing(PollByUserIdResponseDto::getDeadline).thenComparing(PollByUserIdResponseDto::getTitle));
         return new PollsByUserIdResponseDto(polls);
     }
 
