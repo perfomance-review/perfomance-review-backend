@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import ru.hh.performance_review.consts.RequestParams;
 import ru.hh.performance_review.controller.base.CookieConst;
 import ru.hh.performance_review.controller.base.HttpRequestHandler;
+import ru.hh.performance_review.dto.request.CreatePollRequestDto;
 import ru.hh.performance_review.dto.request.UpdateWinnerRequestDto;
 import ru.hh.performance_review.dto.response.*;
 import ru.hh.performance_review.security.annotation.JwtTokenCookie;
@@ -59,6 +60,42 @@ public class PollController {
                 .forArgument(userId);
     }
 
+
+    @PerformanceReviewSecured(roles = {SecurityRole.MANAGER})
+    @POST
+    @Path("polls")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createPoll(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @RequestBody CreatePollRequestDto request) {
+        log.info("Получен запрос /polls");
+        String managerId = SecurityContext.getUserId();
+        return new HttpRequestHandler<String, ResponseMessage>()
+            .validate(v -> pollValidateService.validateCreatePollRequestDto(request, managerId))
+            .process(x -> pollService.createPoll(request, managerId))
+            .convert(objectConvertService::convertToJson)
+            .forArgument(String.valueOf(managerId));
+    }
+
+    /**
+     * endpoint, который возвращает все опросы менеджера
+     *
+     * @param jwtToken          -
+     * @return - ДТО с информацией об опросах
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path("pollsmanager")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllPollsForManager(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken) {
+        log.info("Получен запрос /pollsmanager");
+
+        String userId = SecurityContext.getUserId();
+        return new HttpRequestHandler<String, PollsByUserIdResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> pollService.getAllPollsByManagerId(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(userId);
+    }
+
     /**
      * endpoint начала опроса. Меняет статус опроса и формирует пары для опроса
      *
@@ -100,13 +137,39 @@ public class PollController {
     public Response getResultForUser(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
                                      @PathParam("poll_id") String pollId) {
         String userId = SecurityContext.getUserId();
-        log.info("Get result /result/" + pollId + " для пользователя: " + userId);
+        log.info("Получен запрос /result/" + pollId + " для пользователя: " + userId);
 
         return new HttpRequestHandler<String, GradeUserDto>()
                 .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
                 .process(x -> gradeService.countGrade(userId, pollId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
+    }
+
+    /**
+     * endpoint получения оценки респондента по всем вопросам и компетенциям данного опроса
+     * доступен менеджеру
+     *
+     * @param jwtToken - jwtToken
+     * @param pollId   - идентификатор опроса
+     * @param userId   - идентификатор респондента
+     * @return - ДТО с вопросами, компетенциями и оценками
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path(value = "/result/{poll_id}/{user_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getResultUserForManager(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken,
+                                            @PathParam("poll_id") String pollId, @PathParam("user_id") String userId) {
+
+        String managerId = SecurityContext.getUserId();
+        log.info("Получен запрос /result/" + pollId + "/" + userId);
+
+        return new HttpRequestHandler<String, GradeUserDto>()
+                .validate(v -> resultUserValidateService.validateDataResultUser(pollId, userId))
+                .process(x -> gradeService.countGrade(userId, pollId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(managerId);
     }
 
     /**
@@ -179,7 +242,7 @@ public class PollController {
 
 
     /**
-     * endpoint получения данных о пользователи по идентификатору пользователя
+     * endpoint получения данных текущего пользователя
      *
      * @param jwtToken - jwtToken
      * @return - ДТО с информацией о пользователе
@@ -197,6 +260,29 @@ public class PollController {
                 .process(x -> userService.getRespondentByUserId(userId))
                 .convert(objectConvertService::convertToJson)
                 .forArgument(userId);
+    }
+
+    /**
+     * endpoint получения данных о пользователе по идентификатору пользователя
+     * доступен менеджеру, администратору
+     *
+     * @param jwtToken - jwtToken
+     * @param userId   - идентификатор респондента
+     * @return - ДТО с информацией о пользователе
+     */
+    @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
+    @GET
+    @Path("getuser/{user_id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserById(@JwtTokenCookie @CookieParam(CookieConst.ACCESS_TOKEN) String jwtToken, @PathParam("user_id") String userId) {
+        log.info("Получен запрос /getuser/" + userId);
+        String managerId = SecurityContext.getUserId();
+
+        return new HttpRequestHandler<String, UserResponseDto>()
+                .validate(v -> userValidateService.userIdValidate(userId))
+                .process(x -> userService.getRespondentByUserId(userId))
+                .convert(objectConvertService::convertToJson)
+                .forArgument(managerId);
     }
 
     /**

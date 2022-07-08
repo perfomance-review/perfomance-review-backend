@@ -31,6 +31,11 @@ public final class AuthUserInfo {
     private String userEmail;
 
     /**
+     * пароль
+     */
+    private String password;
+
+    /**
      * Имя пользователя
      */
     protected String firstName;

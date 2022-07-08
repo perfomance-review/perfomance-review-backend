@@ -46,8 +46,7 @@ public class GradeServiceImpl implements GradeService{
         List<ComparePair> results = comparePairDao.getRatingForUserByPollId(UUID.fromString(userId), UUID.fromString(pollId));
 
         if (CollectionUtils.isEmpty(results)) {
-            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
-                    String.format("По опросу с id %s нет данных для оценки. Опрос не был пройден.", pollId));
+            return new GradeUserDto(Collections.emptyList(), Collections.emptyList());
         }
 
         Map<Question, List<ComparePair>> questionsComparePairs = results.stream()
@@ -94,8 +93,7 @@ public class GradeServiceImpl implements GradeService{
         List<ComparePair> allResults = comparePairDao.getRatingForAllByPollIdPagination(UUID.fromString(pollId), page);  // все записи compare_pair по опросу
 
         if (CollectionUtils.isEmpty(allResults)) {
-            throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
-                    String.format("По опросу с id %s нет данных для оценки. Опрос не был пройден.", pollId));
+            return new RatingResponseDto(Collections.emptyList());
         }
 
         List<User> respondents = Stream.concat(allResults.stream().map(ComparePair::getPerson1),        // все участники (реальные) опроса
@@ -144,9 +142,7 @@ public class GradeServiceImpl implements GradeService{
            Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
                    .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
 
-           resultAllQuestions = resultAllQuestions.stream()
-                   .sorted(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())))
-                   .collect(Collectors.toList());
+           resultAllQuestions.sort(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())));
        }
 
         return new RatingResponseDto(resultAllQuestions);

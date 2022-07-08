@@ -13,9 +13,13 @@ public enum InternalErrorCode implements ErrorCode {
     UNAUTHORIZED_TOKEN(6, "Невалидный токен доступа"),
     ACCESS_DENIED(7, "Отсутствуют права доступа"),
     INVALID_SECURED_CONFIGURATION(8, "Ошибка конфигурации безопасности"),
+    INVALID_UNAUTHORIZED_PASSWORD(9, "Неверный пароль"),
+    INVALID_UNAUTHORIZED_VALUE(9, "Некорректный логин/пароль"),
 
     UNKNOWN_USER(2, "Не найден пользователь: %s"),
     UNKNOWN_POLL(3, "Не найден опрос"),
+    UNKNOWN_QUESTION(4, "Не найден вопрос"),
+    USER_NOT_MATCH_MANAGER(5, "Пользователь не соответствует менеджеру"),
     SERIALIZATION_ERROR(17, "Ошибка сериализации"),
     DB_SQL_ERROR(92, "Ошибка уровня SQL"),
     VALIDATION_ERROR(95, "Ошибка валидации входных параметров запроса"),

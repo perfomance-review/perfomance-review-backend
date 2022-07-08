@@ -61,15 +61,11 @@ public class UserServiceImpl implements UserService {
 
 
   @Override
-  public AuthUserInfo getAuthUserByUserNameAndUserPassword(String userEmail, String userPassword) {
-      Optional<User> userOptional = userDao.findByUserEmailAndUserPassword(userEmail, userPassword);
+  public AuthUserInfo findAuthUserInfoByUserEmail(String userEmail) {
+      Optional<User> userOptional = userDao.findByUserEmail(userEmail);
       return userMapper.toAuthUserInfo(userOptional.orElse(null));
   }
 
-  @Override
-  public User findByUserEmail(String userEmail) {
-    return userDao.findByUserEmail(userEmail).orElse(null);
-  }
   @Transactional(readOnly = true)
   @Override
   public RespondentsResponseDto getAllRespondentsForManager(String userId) {
