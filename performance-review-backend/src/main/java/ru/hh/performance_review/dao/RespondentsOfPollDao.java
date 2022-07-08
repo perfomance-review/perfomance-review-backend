@@ -2,6 +2,7 @@ package ru.hh.performance_review.dao;
 
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.model.Poll;
 import ru.hh.performance_review.model.PollStatus;
@@ -83,6 +84,18 @@ public class RespondentsOfPollDao extends CommonDao {
             .setParameter("polls", polls)
             .setParameter("status", status)
             .executeUpdate();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isClosed(UUID pollId) {
+        return getSession().createQuery("SELECT rop " +
+                                                  "FROM RespondentsOfPoll rop " +
+                                                  "WHERE rop.poll.pollId = :pollId " +
+                                                  "    AND rop.status <> :statusClosed", RespondentsOfPoll.class)
+                .setParameter("pollId", pollId)
+                .setParameter("statusClosed", PollStatus.CLOSED)
+                .getResultList()
+                .isEmpty();
     }
 
 }
