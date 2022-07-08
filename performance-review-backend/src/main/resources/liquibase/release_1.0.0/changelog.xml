@@ -18,4 +18,5 @@
     <include file="20220625132300_increase_size_column_password_of_users.xml" relativeToChangelogFile="true"/>
     <include file="20220625132400_add_index_to_table_users.xml" relativeToChangelogFile="true"/>
     <include file="20220625132500_encodepassword_of_table_users.xml" relativeToChangelogFile="true"/>
+    <include file="20220705205600_delete_constraints_poll_question.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
