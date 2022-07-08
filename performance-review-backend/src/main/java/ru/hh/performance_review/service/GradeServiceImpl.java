@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
+import ru.hh.performance_review.dao.RespondentsOfPollDao;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.dto.RatingQuestionDto;
 import ru.hh.performance_review.dto.ResultCompetenceDto;
@@ -35,6 +36,7 @@ public class GradeServiceImpl implements GradeService{
     private final UserMapper userMapper;
     private final ContentOfPollDao contentOfPollDao;
     private final GradeMapper gradeMapper;
+    private final RespondentsOfPollDao respondentsOfPollDao;
 
 
     @Transactional
@@ -157,7 +159,7 @@ public class GradeServiceImpl implements GradeService{
             throw new BusinessServiceException(InternalErrorCode.UNKNOWN_POLL, String.format("pollId:%s", pollId));
         }
 
-        if (poll.getDeadline().isAfter(LocalDate.now())) {
+        if (!respondentsOfPollDao.isClosed(UUID.fromString(pollId))) {
             throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
                     String.format("Опрос %s еще не завершен", pollId));
         }
