@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220619135200_change_table_question.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220705205600" author="User: Kristina Email: kristinalisovcova@gmail.com"
+               context="schema" runOnChange="true">
+        <sql>
+            ALTER TABLE IF EXISTS poll DROP CONSTRAINT IF EXISTS poll_name_key;
+            ALTER TABLE IF EXISTS question DROP CONSTRAINT IF EXISTS question_text_key;
+        </sql>
+        <rollback>
+            <sql>
+                ALTER TABLE IF EXISTS poll ADD CONSTRAINT poll_name_key UNIQUE(name);
+                ALTER TABLE IF EXISTS question ADD CONSTRAINT question_text_key UNIQUE(text);
+            </sql>
+        </rollback>
+        <comment>
+            Delete constraints unique for tables poll and question
+        </comment>
+    </changeSet>
+</databaseChangeLog>
