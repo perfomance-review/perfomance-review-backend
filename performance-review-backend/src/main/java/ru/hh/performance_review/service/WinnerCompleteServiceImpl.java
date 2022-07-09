@@ -45,7 +45,6 @@ public class WinnerCompleteServiceImpl implements WinnerCompleteService {
 
         if (Boolean.parseBoolean(requestDto.getIsCompleted())) {
             completedPollByRespondent(comparePair.getPoll(), comparePair.getRespondent());
-            closedPoll(comparePair.getPoll().getPollId());
         }
 
         return new EmptyResponseDto();
