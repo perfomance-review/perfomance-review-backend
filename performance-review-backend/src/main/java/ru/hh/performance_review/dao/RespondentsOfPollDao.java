@@ -98,4 +98,17 @@ public class RespondentsOfPollDao extends CommonDao {
                 .isEmpty();
     }
 
+    @Transactional(readOnly = true)
+    public boolean isClosedOrCompleted(UUID pollId) {
+        List<PollStatus> statusFinish = List.of(PollStatus.COMPLETED, PollStatus.CLOSED);
+        return getSession().createQuery("SELECT rop " +
+                        "FROM RespondentsOfPoll rop " +
+                        "WHERE rop.poll.pollId = :pollId " +
+                        "    AND rop.status NOT IN :statusFinish", RespondentsOfPoll.class)
+                .setParameter("pollId", pollId)
+                .setParameter("statusFinish", statusFinish)
+                .getResultList()
+                .isEmpty();
+    }
+
 }
