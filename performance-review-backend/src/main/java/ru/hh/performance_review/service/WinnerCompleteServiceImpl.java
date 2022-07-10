@@ -45,6 +45,7 @@ public class WinnerCompleteServiceImpl implements WinnerCompleteService {
 
         if (Boolean.parseBoolean(requestDto.getIsCompleted())) {
             completedPollByRespondent(comparePair.getPoll(), comparePair.getRespondent());
+            closedPoll(comparePair.getPoll().getPollId());
         }
 
         return new EmptyResponseDto();
@@ -77,8 +78,10 @@ public class WinnerCompleteServiceImpl implements WinnerCompleteService {
         respondentsOfPollDao
                 .findOptionalByRespondentsOfPoll(poll, respondent)
                 .ifPresent(respondentsOfPoll -> {
-                    respondentsOfPoll.setStatus(PollStatus.COMPLETED);
-                    respondentsOfPollDao.update(respondentsOfPoll);
+                    if (respondentsOfPoll.getStatus().equals(PollStatus.PROGRESS)) {
+                        respondentsOfPoll.setStatus(PollStatus.COMPLETED);
+                        respondentsOfPollDao.update(respondentsOfPoll);
+                    }
                 });
     }
 
