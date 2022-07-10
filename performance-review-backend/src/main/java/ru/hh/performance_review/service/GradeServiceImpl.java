@@ -159,7 +159,7 @@ public class GradeServiceImpl implements GradeService{
             throw new BusinessServiceException(InternalErrorCode.UNKNOWN_POLL, String.format("pollId:%s", pollId));
         }
 
-        if (!respondentsOfPollDao.isClosed(UUID.fromString(pollId))) {
+        if (!respondentsOfPollDao.isClosedOrCompleted(UUID.fromString(pollId))) {
             throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
                     String.format("Опрос %s еще не завершен", pollId));
         }
