@@ -19,6 +19,7 @@ import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
 import ru.hh.performance_review.service.validate.UserValidateService;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Component
@@ -101,12 +102,10 @@ public class ReportController {
     }
 
     @GET
-    @Path("/users_info.xlsx")
+    @Path("/users_info")
     @Produces({
-            "application/excel",
-            "application/vnd.ms-excel",
-            "application/x-excel",
-            "application/x-msexcel",
+            MediaType.APPLICATION_OCTET_STREAM,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     })
     public Response getUserInfoReport() {
 
@@ -118,6 +117,8 @@ public class ReportController {
             ReportResponseContextDto reportResponseContextDto = reportDocumentService.createReportContext(reportRequestContextDto);
 
             return Response.status(Response.Status.OK.getStatusCode())
+                    .type(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", String.format("attachment; filename=\"%s\"", reportRequestContextDto.getReportType().getReportName()))
                     .entity(reportResponseContextDto.getReportBytes())
                     .build();
 
