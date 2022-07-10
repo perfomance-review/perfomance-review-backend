@@ -103,10 +103,7 @@ public class ReportController {
     @GET
     @Path("/users_info.xlsx")
     @Produces({
-            "application/excel",
-            "application/vnd.ms-excel",
-            "application/x-excel",
-            "application/x-msexcel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     })
     public Response getUserInfoReport() {
 
@@ -118,6 +115,7 @@ public class ReportController {
             ReportResponseContextDto reportResponseContextDto = reportDocumentService.createReportContext(reportRequestContextDto);
 
             return Response.status(Response.Status.OK.getStatusCode())
+                    .type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                     .entity(reportResponseContextDto.getReportBytes())
                     .build();
 
