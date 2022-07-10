@@ -24,6 +24,7 @@ public enum InternalErrorCode implements ErrorCode {
     DB_SQL_ERROR(92, "Ошибка уровня SQL"),
     VALIDATION_ERROR(95, "Ошибка валидации входных параметров запроса"),
     DB_ACCESS_ERROR(97, "Недоступна БД"),
+    REPORT_GENERATE_ERROR(98, "Ошибка генерации %s-документа"),
     INTERNAL_ERROR(99, "Внутренняя ошибка сервиса");
 
 

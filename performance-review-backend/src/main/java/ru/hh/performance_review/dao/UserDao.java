@@ -73,4 +73,8 @@ public class UserDao extends CommonDao {
             .setParameterList("ids", ids)
             .getResultList();
     }
+
+    public List<UUID> findAllByLeadId(String managerId) {
+        return null;
+    }
 }

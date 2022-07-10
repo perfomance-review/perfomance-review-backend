@@ -18,6 +18,7 @@ public interface PollMapper {
     @Mapping(target = "title", source = "poll.name")
     @Mapping(target = "description", source = "poll.description")
     @Mapping(target = "deadline", source = "poll.deadline")
+    @Mapping(target = "createdDt", source = "poll.recCreateDttm")
     PollByUserIdResponseDto toPollByUserIdResponseDto(Poll poll, long respondentsCount, long questionsCount, PollStatus status);
 
     @Mapping(target = "title", source = "poll.name")
