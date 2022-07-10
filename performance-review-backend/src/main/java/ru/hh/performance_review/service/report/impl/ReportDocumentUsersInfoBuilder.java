@@ -84,11 +84,13 @@ public class ReportDocumentUsersInfoBuilder implements ReportBuilder {
             sheet.autoSizeColumn(i);
         }
 
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+        try  {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
             workbook.write(os);
+            byte[] reportBytes = os.toByteArray();
             return ReportResponseContextDto.builder()
                     .reportName(getReportType().getReportName())
-                    .reportBytes(os.toByteArray())
+                    .reportBytes(reportBytes)
                     .build();
         } catch (IOException e) {
             log.error("", e);

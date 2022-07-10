@@ -2,6 +2,8 @@ package ru.hh.performance_review.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Component;
 import ru.hh.performance_review.consts.ReportType;
 import ru.hh.performance_review.controller.base.CookieConst;
@@ -18,8 +20,14 @@ import ru.hh.performance_review.service.report.ReportDocumentService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
 import ru.hh.performance_review.service.validate.UserValidateService;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 @Component
 @RequiredArgsConstructor
@@ -101,30 +109,49 @@ public class ReportController {
     }
 
     @GET
-    @Path("/users_info.xlsx")
+    @Path("/users_info")
     @Produces({
-            "application/excel",
-            "application/vnd.ms-excel",
-            "application/x-excel",
-            "application/x-msexcel",
+            MediaType.APPLICATION_OCTET_STREAM,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     })
-    public Response getUserInfoReport() {
+    public void getUserInfoReport(@Context HttpServletResponse response) {
 
         try {
 
             ReportRequestContextDto reportRequestContextDto = new ReportRequestContextDto()
                     .setReportType(ReportType.USERS_INFO);
 
-            ReportResponseContextDto reportResponseContextDto = reportDocumentService.createReportContext(reportRequestContextDto);
+            final ReportResponseContextDto reportResponseContextDto = reportDocumentService.createReportContext(reportRequestContextDto);
 
-            return Response.status(Response.Status.OK.getStatusCode())
-                    .entity(reportResponseContextDto.getReportBytes())
-                    .build();
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + reportRequestContextDto.getReportType().getReportName() + "\"");
 
+            try (
+                    PrintWriter printWriter = response.getWriter();
+                    CSVPrinter csvPrinter = new CSVPrinter(printWriter, CSVFormat.DEFAULT.withHeader("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            ) {
+                csvPrinter.printRecord(reportResponseContextDto);
+            } catch (IOException e) {
+                log.error("Произошла ошибка при загрузки данных в csv файл");
+                e.printStackTrace();
+            }
+            log.info("Загрузка данных в csv файл успешно завершена");
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(objectConvertService.convertToJson(new ErrorDto(InternalErrorCode.INTERNAL_ERROR, e.getMessage())))
-                    .build();
+            e.printStackTrace();
         }
     }
 }
+
+
+//            return Response.status(Response.Status.OK.getStatusCode())
+//                    .type(MediaType.APPLICATION_OCTET_STREAM)
+//                    .header("Content-Disposition", String.format("attachment; filename=\"%s\"", reportRequestContextDto.getReportType().getReportName()))
+//                    .entity(reportResponseContextDto.getReportBytes())
+//                    .build();
+//
+//        } catch (Exception e) {
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+//                    .entity(objectConvertService.convertToJson(new ErrorDto(InternalErrorCode.INTERNAL_ERROR, e.getMessage())))
+//                    .build();
+//        }
+
