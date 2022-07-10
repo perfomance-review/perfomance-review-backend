@@ -1,7 +1,6 @@
 package ru.hh.performance_review.dao;
 
 import org.hibernate.SessionFactory;
-import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hh.performance_review.dao.base.CommonDao;
@@ -64,5 +63,18 @@ public class UserDao extends CommonDao {
                         "", User.class)
                 .setParameter("userEmail", userEmail)
                 .uniqueResultOptional();
+    }
+
+    public List<User> getAllByIds(List<UUID> ids) {
+
+        return getSession().createQuery("SELECT u " +
+                "FROM User u " +
+                "WHERE u.userId in (:ids)", User.class )
+            .setParameterList("ids", ids)
+            .getResultList();
+    }
+
+    public List<UUID> findAllByLeadId(String managerId) {
+        return null;
     }
 }

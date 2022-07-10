@@ -11,12 +11,10 @@ import ru.hh.performance_review.dto.response.ResponseMessage;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.mapper.GetWinnerMapper;
-import ru.hh.performance_review.model.ComparePair;
-import ru.hh.performance_review.model.Poll;
-import ru.hh.performance_review.model.PollStatus;
-import ru.hh.performance_review.model.User;
+import ru.hh.performance_review.model.*;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,9 +45,27 @@ public class WinnerCompleteServiceImpl implements WinnerCompleteService {
 
         if (Boolean.parseBoolean(requestDto.getIsCompleted())) {
             completedPollByRespondent(comparePair.getPoll(), comparePair.getRespondent());
+            closedPoll(comparePair.getPoll().getPollId());
         }
 
         return new EmptyResponseDto();
+    }
+
+    /**
+     * Метод закрывает опрос, если у всех респондентов статус = COMPLETED
+     *
+     * @param pollId       - id опроса
+     */
+    private void closedPoll(UUID pollId) {
+        List<RespondentsOfPoll> respondentsOfPollList = respondentsOfPollDao.getByPollId(pollId);
+        boolean isCompleted = respondentsOfPollList.stream()
+                .allMatch(x -> x.getStatus().equals(PollStatus.COMPLETED));
+        if (isCompleted) {
+            respondentsOfPollList.forEach(respondentsOfPoll -> {
+                        respondentsOfPoll.setStatus(PollStatus.CLOSED);
+                        respondentsOfPollDao.update(respondentsOfPoll);
+                    });
+        }
     }
 
     /**
@@ -62,8 +78,10 @@ public class WinnerCompleteServiceImpl implements WinnerCompleteService {
         respondentsOfPollDao
                 .findOptionalByRespondentsOfPoll(poll, respondent)
                 .ifPresent(respondentsOfPoll -> {
-                    respondentsOfPoll.setStatus(PollStatus.COMPLETED);
-                    respondentsOfPollDao.update(respondentsOfPoll);
+                    if (respondentsOfPoll.getStatus().equals(PollStatus.PROGRESS)) {
+                        respondentsOfPoll.setStatus(PollStatus.COMPLETED);
+                        respondentsOfPollDao.update(respondentsOfPoll);
+                    }
                 });
     }
 
