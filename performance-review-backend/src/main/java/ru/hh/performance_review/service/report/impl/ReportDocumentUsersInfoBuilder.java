@@ -80,9 +80,13 @@ public class ReportDocumentUsersInfoBuilder implements ReportBuilder {
             cell3.setCellStyle(bodyStyle);
         }
 
-//        for (int i = 0; i < COLUMNS.length; i++) {
-//            sheet.autoSizeColumn(i);
-//        }
+        for (int i = 0; i < COLUMNS.length; i++) {
+            try {
+                sheet.autoSizeColumn(i);
+            } catch (Exception e){
+                break;
+            }
+        }
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             workbook.write(os);

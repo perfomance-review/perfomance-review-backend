@@ -16,7 +16,6 @@ import ru.hh.performance_review.security.context.SecurityContext;
 import ru.hh.performance_review.security.context.SecurityRole;
 import ru.hh.performance_review.service.report.ReportDocumentService;
 import ru.hh.performance_review.service.sereliazation.ObjectConvertService;
-import ru.hh.performance_review.service.validate.UserValidateService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -29,14 +28,14 @@ import javax.ws.rs.core.Response;
 public class ReportController {
 
     private final ReportDocumentService reportDocumentService;
-    private final UserValidateService userValidateService;
     private final ObjectConvertService objectConvertService;
-//    private static final String USER_ID = "00000000-0000-0000-0000-00000000000a";
 
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
     @GET
-    @Path("/created_polls.xlsx")
+    @Path("/created_polls")
     @Produces({
+            MediaType.APPLICATION_OCTET_STREAM,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "application/excel",
             "application/vnd.ms-excel",
             "application/x-excel",
@@ -52,6 +51,8 @@ public class ReportController {
             ReportResponseContextDto reportResponseContextDto = reportDocumentService.createReportContext(reportRequestContextDto);
 
             return Response.status(Response.Status.OK.getStatusCode())
+                    .type(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", String.format("attachment; filename=\"%s\"", reportRequestContextDto.getReportType().getReportName()))
                     .entity(reportResponseContextDto.getReportBytes())
                     .build();
 
@@ -68,8 +69,10 @@ public class ReportController {
 
     @PerformanceReviewSecured(roles = {SecurityRole.ADMINISTRATOR, SecurityRole.MANAGER})
     @GET
-    @Path("/{poll_id}/poll_result.xlsx")
+    @Path("/{poll_id}/poll_result")
     @Produces({
+            MediaType.APPLICATION_OCTET_STREAM,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "application/excel",
             "application/vnd.ms-excel",
             "application/x-excel",
@@ -82,11 +85,13 @@ public class ReportController {
         try {
             ReportRequestContextDto reportRequestContextDto = new ReportRequestContextDto()
                     .setReportType(ReportType.POLL_RESULTS)
-                    .setPollId("12dd94c8-a5a1-480f-952a-4e54b8dc7272")
+                    .setPollId(pollId)
                     .setUserId(id);
             ReportResponseContextDto reportResponseContextDto = reportDocumentService.createReportContext(reportRequestContextDto);
 
             return Response.status(Response.Status.OK.getStatusCode())
+                    .type(MediaType.APPLICATION_OCTET_STREAM)
+                    .header("Content-Disposition", String.format("attachment; filename=\"%s\"", reportRequestContextDto.getReportType().getReportName()))
                     .entity(reportResponseContextDto.getReportBytes())
                     .build();
 

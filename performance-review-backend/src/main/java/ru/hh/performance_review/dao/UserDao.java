@@ -74,7 +74,13 @@ public class UserDao extends CommonDao {
             .getResultList();
     }
 
-    public List<UUID> findAllByLeadId(String managerId) {
-        return null;
+    @Transactional(readOnly = true)
+    public List<User> findAllByLeadId(String managerId) {
+        return getSession().createQuery(
+                "SELECT u FROM User u " +
+                        " WHERE u.leader = :managerId " +
+                        "", User.class)
+                .setParameter("managerId", managerId)
+                .getResultList();
     }
 }

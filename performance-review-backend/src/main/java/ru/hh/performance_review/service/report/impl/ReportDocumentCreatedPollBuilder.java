@@ -132,7 +132,11 @@ public class ReportDocumentCreatedPollBuilder implements ReportBuilder {
         sheet.addMergedRegion(new CellRangeAddress(managerNameRow.getRowNum(), managerNameRow.getRowNum(), 2, 5));
 
         for (int i = 0; i < POLLS_COLUMNS.length; i++) {
-            sheet.autoSizeColumn(i);
+            try {
+                sheet.autoSizeColumn(i);
+            } catch (Exception e){
+                break;
+            }
         }
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {

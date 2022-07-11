@@ -2,12 +2,14 @@ package ru.hh.performance_review.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import ru.hh.performance_review.dao.ComparePairDao;
 import ru.hh.performance_review.dao.ContentOfPollDao;
 import ru.hh.performance_review.dao.RespondentsOfPollDao;
+import ru.hh.performance_review.dao.UserDao;
 import ru.hh.performance_review.dao.base.CommonDao;
 import ru.hh.performance_review.dto.RatingQuestionDto;
 import ru.hh.performance_review.dto.ResultCompetenceDto;
@@ -15,13 +17,14 @@ import ru.hh.performance_review.dto.ResultQuestionDto;
 import ru.hh.performance_review.dto.UserWithScoreDto;
 import ru.hh.performance_review.dto.response.GradeUserDto;
 import ru.hh.performance_review.dto.response.RatingResponseDto;
+import ru.hh.performance_review.dto.response.report.QuestionUsersInfoDto;
+import ru.hh.performance_review.dto.response.report.ReportDocumentPollResultDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
 import ru.hh.performance_review.exception.InternalErrorCode;
 import ru.hh.performance_review.mapper.GradeMapper;
 import ru.hh.performance_review.mapper.UserMapper;
 import ru.hh.performance_review.model.*;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,10 +32,11 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GradeServiceImpl implements GradeService{
+public class GradeServiceImpl implements GradeService {
 
     private final ComparePairDao comparePairDao;
     private final CommonDao commonDao;
+    private final UserDao userDao;
     private final UserMapper userMapper;
     private final ContentOfPollDao contentOfPollDao;
     private final GradeMapper gradeMapper;
@@ -42,9 +46,9 @@ public class GradeServiceImpl implements GradeService{
     @Transactional
     @Override
     public GradeUserDto countGrade(String userId, String pollId) {
-        
+
         checkPollStatus(pollId);
-        
+
         List<ComparePair> results = comparePairDao.getRatingForUserByPollId(UUID.fromString(userId), UUID.fromString(pollId));
 
         if (CollectionUtils.isEmpty(results)) {
@@ -52,11 +56,11 @@ public class GradeServiceImpl implements GradeService{
         }
 
         Map<Question, List<ComparePair>> questionsComparePairs = results.stream()
-               .collect(Collectors.groupingBy(ComparePair::getQuestion));
+                .collect(Collectors.groupingBy(ComparePair::getQuestion));
 
-        Map<Question,Double> questionsAndGrade = new HashMap<>();
+        Map<Question, Double> questionsAndGrade = new HashMap<>();
 
-        for (Question question: questionsComparePairs.keySet()) {
+        for (Question question : questionsComparePairs.keySet()) {
             long countWinner = questionsComparePairs.get(question).stream()
                     .filter(x -> x.getWinner().getUserId().equals(UUID.fromString(userId)))
                     .count();
@@ -77,7 +81,7 @@ public class GradeServiceImpl implements GradeService{
 
         List<ResultCompetenceDto> resultCompetenceDtoList = questionsAndGrade.entrySet().stream()
                 .filter(x -> Objects.nonNull(x.getKey().getCompetence()))
-                .collect(Collectors.toMap(x -> x.getKey().getCompetence(), Map.Entry::getValue, (a, b) -> (a + b) /2))
+                .collect(Collectors.toMap(x -> x.getKey().getCompetence(), Map.Entry::getValue, (a, b) -> (a + b) / 2))
                 .entrySet()
                 .stream()
                 .map(x -> gradeMapper.toResultCompetenceDto(x.getKey(), Math.round(x.getValue())))
@@ -99,7 +103,7 @@ public class GradeServiceImpl implements GradeService{
         }
 
         List<User> respondents = Stream.concat(allResults.stream().map(ComparePair::getPerson1),        // все участники (реальные) опроса
-                                               allResults.stream().map(ComparePair::getPerson2))
+                allResults.stream().map(ComparePair::getPerson2))
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -108,7 +112,7 @@ public class GradeServiceImpl implements GradeService{
 
         List<RatingQuestionDto> resultAllQuestions = new ArrayList<>();         // результаты по все вопросам
 
-       for (Question question: questionsComparePairs.keySet()) {
+        for (Question question : questionsComparePairs.keySet()) {
 
             List<UserWithScoreDto> resultQuestion = new ArrayList<>();         // результаты по 1 вопросу
 
@@ -123,7 +127,7 @@ public class GradeServiceImpl implements GradeService{
 
                 if (countParticipant == 0) {
                     throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
-                            String.format("Респондент с id %s не найден в таблице результатов",respondent.getUserId()));
+                            String.format("Респондент с id %s не найден в таблице результатов", respondent.getUserId()));
                 }
 
                 double gradeQuestion = 100.0 * countWinner / countParticipant;
@@ -137,22 +141,22 @@ public class GradeServiceImpl implements GradeService{
             resultAllQuestions.add(gradeMapper.toRatingQuestionDto(question, resultQuestion));
         }
 
-       if (page == null) {                  // если запрошены все вопросы - то сортировка по order
+        if (page == null) {                  // если запрошены все вопросы - то сортировка по order
 
-           List<ContentOfPoll> listContentOfPoll = contentOfPollDao.getByPollId(UUID.fromString(pollId));
+            List<ContentOfPoll> listContentOfPoll = contentOfPollDao.getByPollId(UUID.fromString(pollId));
 
-           Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
-                   .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
+            Map<String, Integer> orderOfQuestions = listContentOfPoll.stream()
+                    .collect(Collectors.toMap(cop -> cop.getQuestion().getText(), ContentOfPoll::getOrder));
 
-           resultAllQuestions.sort(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())));
-       }
+            resultAllQuestions.sort(Comparator.comparing(x -> orderOfQuestions.get(x.getTextQuestion())));
+        }
 
         return new RatingResponseDto(resultAllQuestions);
 
     }
-    
+
     private void checkPollStatus(String pollId) {
-        
+
         Poll poll = commonDao.getByID(Poll.class, UUID.fromString(pollId));
 
         if (poll == null) {
@@ -164,5 +168,61 @@ public class GradeServiceImpl implements GradeService{
                     String.format("Опрос %s еще не завершен", pollId));
         }
     }
-    
+
+    @Transactional
+    @Override
+    public ReportDocumentPollResultDto createReportDocumentPollResult(String managerId, String pollId) {
+
+        List<User> respondents = userDao.findAllByLeadId(managerId);
+
+        List<QuestionUsersInfoDto> questionInfos = new ArrayList<>();
+        for (User respondent : respondents) {
+            questionInfos.addAll(createQuestionUsersInfosByRespondent(respondent, pollId));
+        }
+        questionInfos.sort(
+                Comparator.comparing(QuestionUsersInfoDto::getTextQuestion)
+                        .thenComparing(QuestionUsersInfoDto::getScore));
+        return new ReportDocumentPollResultDto()
+                .setQuestionInfos(questionInfos);
+    }
+
+    private List<QuestionUsersInfoDto> createQuestionUsersInfosByRespondent(User respondent, String pollIdStr) {
+
+        UUID userId = respondent.getUserId();
+        UUID pollId = UUID.fromString(pollIdStr);
+        String fullName = getFullName(respondent);
+        List<QuestionUsersInfoDto> usersInfoDtos = new ArrayList<>();
+
+        List<ComparePair> allComparePairs = comparePairDao.getRatingForUserByPollId(userId, pollId);
+
+        if (CollectionUtils.isEmpty(allComparePairs)) {
+            return Collections.emptyList();
+        }
+
+        Map<Question, List<ComparePair>> questionsComparePairs = allComparePairs.stream()
+                .collect(Collectors.groupingBy(ComparePair::getQuestion));
+
+        for (Question question : questionsComparePairs.keySet()) {
+            long countWinner = questionsComparePairs.get(question).stream()
+                    .filter(x -> x.getWinner().getUserId().equals(userId))
+                    .count();
+            Long gradeQuestion = Math.round((9.0 * countWinner / questionsComparePairs.get(question).size()) + 1);
+            QuestionUsersInfoDto questionUsersInfoDto = new QuestionUsersInfoDto()
+                    .setUserFullName(fullName)
+                    .setTextQuestion(question.getText())
+                    .setScore(gradeQuestion);
+            usersInfoDtos.add(questionUsersInfoDto);
+        }
+
+        return usersInfoDtos;
+    }
+
+    private String getFullName(User respondent) {
+        String fN = StringUtils.trimToEmpty(respondent.getFirstName());
+        String sN = StringUtils.trimToEmpty(respondent.getSecondName());
+        String mN = StringUtils.trimToEmpty(respondent.getMiddleName());
+        return String.format("%s %s %s", fN, sN, mN).trim();
+    }
+
+
 }
