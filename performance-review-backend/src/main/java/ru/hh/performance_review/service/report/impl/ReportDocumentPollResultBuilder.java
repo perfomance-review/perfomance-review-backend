@@ -132,15 +132,6 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
         sheet.addMergedRegion(new CellRangeAddress(5, 5, 1, 2));
         sheet.addMergedRegion(new CellRangeAddress(6, 6, 1, 2));
 
-
-        for (int i = 0; i < POLLS_COLUMNS.length; i++) {
-            try {
-                sheet.autoSizeColumn(i);
-            } catch (Exception e) {
-                break;
-            }
-        }
-
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             workbook.write(os);
             return ReportResponseContextDto.builder()
