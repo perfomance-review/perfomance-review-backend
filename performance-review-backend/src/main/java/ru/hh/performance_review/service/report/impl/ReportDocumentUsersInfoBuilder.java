@@ -27,7 +27,7 @@ import java.util.List;
 public class ReportDocumentUsersInfoBuilder implements ReportBuilder {
 
     private final UserService userService;
-    private  final static String[] COLUMNS = {"№", "ФИО", "Почта", "Должность"};
+    private final static String[] COLUMNS = {"№", "ФИО", "Почта", "Должность"};
 
     @Override
     public ReportType getReportType() {
@@ -80,17 +80,15 @@ public class ReportDocumentUsersInfoBuilder implements ReportBuilder {
             cell3.setCellStyle(bodyStyle);
         }
 
-        for (int i = 0; i < COLUMNS.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
+//        for (int i = 0; i < COLUMNS.length; i++) {
+//            sheet.autoSizeColumn(i);
+//        }
 
-        try  {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             workbook.write(os);
-            byte[] reportBytes = os.toByteArray();
             return ReportResponseContextDto.builder()
                     .reportName(getReportType().getReportName())
-                    .reportBytes(reportBytes)
+                    .reportBytes(os.toByteArray())
                     .build();
         } catch (IOException e) {
             log.error("", e);
