@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        logicalFilePath="20220712005600_update_name_manager.xml"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20220712005600" author="User: Igor Matyushenko Email: ig0r.matyushenk0@mail.ru"
+               context="schema" runOnChange="true">
+        <sql>
+            UPDATE users SET first_name = 'Алексей', second_name = 'Крутов'
+                WHERE user_id = '00000000-0000-0000-0000-00000000000a';
+        </sql>
+
+        <comment>
+            Изменение имени у user Alex Krutov
+        </comment>
+    </changeSet>
+</databaseChangeLog>
