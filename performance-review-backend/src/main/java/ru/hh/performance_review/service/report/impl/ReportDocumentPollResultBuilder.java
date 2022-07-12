@@ -43,7 +43,7 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
     private static final String POLL_DESCRIPTION = "Описание";
     private static final String POLL_CREATED = "Дата создания";
     private static final String POLL_DEADLINE = "Дата окончания (плановая)";
-    private static final String POLL_STATUS = "Дата окончания (плановая)";
+    private static final String POLL_STATUS = "Статус";
 
     @Override
     public ReportType getReportType() {
@@ -64,8 +64,8 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
 
         Sheet sheet = workbook.createSheet(REPORT_NAME);
         sheet.setColumnWidth(0, 5000);
-        sheet.setColumnWidth(1, 7000);
-        sheet.setColumnWidth(2, 1000);
+        sheet.setColumnWidth(1, 12000);
+        sheet.setColumnWidth(2, 5000);
 
 
         CellStyle headerNameStyle = FontUtils.buildHeaderNameStyle(workbook, 14);

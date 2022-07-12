@@ -176,48 +176,66 @@ public class GradeServiceImpl implements GradeService {
 
         List<RespondentsOfPoll> respondentsOfPolls = respondentsOfPollDao.getByPollId(UUID.fromString(pollId));
         PollDto poll = new PollDto(respondentsOfPolls.get(0).getPoll());
-        Set<User> respondents = respondentsOfPolls.stream()
-                .map(RespondentsOfPoll::getRespondent)
-                .collect(Collectors.toSet());
 
-        List<QuestionUsersInfoDto> questionInfos = new ArrayList<>();
-        for (User respondent : respondents) {
-            questionInfos.addAll(createQuestionUsersInfosByRespondent(respondent, pollId));
-        }
+        List<QuestionUsersInfoDto> questionInfos = createQuestionUsersInfosByRespondent(pollId);
+
         questionInfos.sort(
                 Comparator.comparing(QuestionUsersInfoDto::getTextQuestion)
-                        .thenComparing(QuestionUsersInfoDto::getScore));
+                        .thenComparing(QuestionUsersInfoDto::getScore).reversed());
         return new ReportDocumentPollResultDto()
                 .setPollInfo(poll)
                 .setQuestionInfos(questionInfos);
     }
 
-    private List<QuestionUsersInfoDto> createQuestionUsersInfosByRespondent(User respondent, String pollIdStr) {
+    private List<QuestionUsersInfoDto> createQuestionUsersInfosByRespondent(String pollIdStr) {
 
-        UUID userId = respondent.getUserId();
         UUID pollId = UUID.fromString(pollIdStr);
-        String fullName = getFullName(respondent);
+
         List<QuestionUsersInfoDto> usersInfoDtos = new ArrayList<>();
 
-        List<ComparePair> allComparePairs = comparePairDao.getRatingForUserByPollId(userId, pollId);
+        List<ComparePair> allComparePairs = comparePairDao.getRatingForAllByPollIdPagination(pollId, null);  // все записи compare_pair по опросу
 
         if (CollectionUtils.isEmpty(allComparePairs)) {
             return Collections.emptyList();
         }
 
+        // все участники (реальные) опроса
+        Set<User> respondents = Stream
+                .concat(
+                        allComparePairs.stream().map(ComparePair::getPerson1),
+                        allComparePairs.stream().map(ComparePair::getPerson2))
+                .collect(Collectors.toSet());
+
         Map<Question, List<ComparePair>> questionsComparePairs = allComparePairs.stream()
                 .collect(Collectors.groupingBy(ComparePair::getQuestion));
 
         for (Question question : questionsComparePairs.keySet()) {
-            long countWinner = questionsComparePairs.get(question).stream()
-                    .filter(x -> x.getWinner().getUserId().equals(userId))
-                    .count();
-            Long gradeQuestion = Math.round((9.0 * countWinner / questionsComparePairs.get(question).size()) + 1);
-            QuestionUsersInfoDto questionUsersInfoDto = new QuestionUsersInfoDto()
-                    .setUserFullName(fullName)
-                    .setTextQuestion(question.getText())
-                    .setScore(gradeQuestion);
-            usersInfoDtos.add(questionUsersInfoDto);
+
+            for (User respondent : respondents) {
+
+                long countWinner = questionsComparePairs.get(question).stream()
+                        .filter(x -> Objects.equals(x.getWinner().getUserId(), respondent.getUserId()))
+                        .count();
+                long countParticipant = questionsComparePairs.get(question).stream()
+                        .filter(x -> Objects.equals(x.getPerson1().getUserId(), respondent.getUserId())
+                                || Objects.equals(x.getPerson2().getUserId(), respondent.getUserId()))
+                        .count();
+
+                if (countParticipant == 0) {
+                    throw new BusinessServiceException(InternalErrorCode.INTERNAL_ERROR,
+                            String.format("Респондент с id %s не найден в таблице результатов", respondent.getUserId()));
+                }
+
+                Long gradeQuestion = Math.round(100.0 * countWinner / countParticipant);
+
+                String fullName = getFullName(respondent);
+                QuestionUsersInfoDto questionUsersInfoDto = new QuestionUsersInfoDto()
+                        .setUserFullName(fullName)
+                        .setTextQuestion(question.getText())
+                        .setScore(gradeQuestion);
+                usersInfoDtos.add(questionUsersInfoDto);
+
+            }
         }
 
         return usersInfoDtos;
