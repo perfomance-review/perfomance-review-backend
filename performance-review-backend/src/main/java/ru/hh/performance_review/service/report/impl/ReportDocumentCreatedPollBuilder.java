@@ -51,11 +51,12 @@ public class ReportDocumentCreatedPollBuilder implements ReportBuilder {
         XSSFWorkbook workbook = new XSSFWorkbook();
 
         Sheet sheet = workbook.createSheet(REPORT_NAME);
-        sheet.setColumnWidth(0, 6000);
-        sheet.setColumnWidth(1, 4000);
-        sheet.setColumnWidth(2, 4000);
+        sheet.setColumnWidth(0, 1000);
+        sheet.setColumnWidth(1, 6000);
+        sheet.setColumnWidth(2, 12000);
         sheet.setColumnWidth(3, 4000);
-        sheet.setColumnWidth(4, 6000);
+        sheet.setColumnWidth(4, 4000);
+        sheet.setColumnWidth(5, 5000);
 
 
         CellStyle headerNameStyle = FontUtils.buildHeaderNameStyle(workbook, 14);

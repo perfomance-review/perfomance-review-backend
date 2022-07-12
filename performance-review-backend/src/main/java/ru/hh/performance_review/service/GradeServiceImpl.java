@@ -17,6 +17,7 @@ import ru.hh.performance_review.dto.ResultQuestionDto;
 import ru.hh.performance_review.dto.UserWithScoreDto;
 import ru.hh.performance_review.dto.response.GradeUserDto;
 import ru.hh.performance_review.dto.response.RatingResponseDto;
+import ru.hh.performance_review.dto.response.report.PollDto;
 import ru.hh.performance_review.dto.response.report.QuestionUsersInfoDto;
 import ru.hh.performance_review.dto.response.report.ReportDocumentPollResultDto;
 import ru.hh.performance_review.exception.BusinessServiceException;
@@ -169,11 +170,15 @@ public class GradeServiceImpl implements GradeService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public ReportDocumentPollResultDto createReportDocumentPollResult(String managerId, String pollId) {
 
-        List<User> respondents = userDao.findAllByLeadId(managerId);
+        List<RespondentsOfPoll> respondentsOfPolls = respondentsOfPollDao.getByPollId(UUID.fromString(pollId));
+        PollDto poll = new PollDto(respondentsOfPolls.get(0).getPoll());
+        Set<User> respondents = respondentsOfPolls.stream()
+                .map(RespondentsOfPoll::getRespondent)
+                .collect(Collectors.toSet());
 
         List<QuestionUsersInfoDto> questionInfos = new ArrayList<>();
         for (User respondent : respondents) {
@@ -183,6 +188,7 @@ public class GradeServiceImpl implements GradeService {
                 Comparator.comparing(QuestionUsersInfoDto::getTextQuestion)
                         .thenComparing(QuestionUsersInfoDto::getScore));
         return new ReportDocumentPollResultDto()
+                .setPollInfo(poll)
                 .setQuestionInfos(questionInfos);
     }
 

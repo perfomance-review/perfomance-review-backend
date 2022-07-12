@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import ru.hh.performance_review.consts.ReportType;
 import ru.hh.performance_review.dto.request.report.ReportRequestContextDto;
 import ru.hh.performance_review.dto.response.UserResponseDto;
+import ru.hh.performance_review.dto.response.report.PollDto;
 import ru.hh.performance_review.dto.response.report.QuestionUsersInfoDto;
 import ru.hh.performance_review.dto.response.report.ReportDocumentPollResultDto;
 import ru.hh.performance_review.dto.response.report.ReportResponseContextDto;
@@ -25,6 +26,7 @@ import ru.hh.performance_review.service.report.utils.FontUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -56,16 +58,14 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
 
         UserResponseDto userResponseDto = userService.getRespondentByUserId(managerId);
         ReportDocumentPollResultDto resultDto = gradeService.createReportDocumentPollResult(managerId, pollId);
-
+        PollDto pollInfo = resultDto.getPollInfo();
 
         XSSFWorkbook workbook = new XSSFWorkbook();
 
         Sheet sheet = workbook.createSheet(REPORT_NAME);
-        sheet.setColumnWidth(0, 6000);
-        sheet.setColumnWidth(1, 4000);
-        sheet.setColumnWidth(2, 4000);
-        sheet.setColumnWidth(3, 4000);
-        sheet.setColumnWidth(4, 6000);
+        sheet.setColumnWidth(0, 5000);
+        sheet.setColumnWidth(1, 7000);
+        sheet.setColumnWidth(2, 1000);
 
 
         CellStyle headerNameStyle = FontUtils.buildHeaderNameStyle(workbook, 14);
@@ -92,11 +92,11 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
         String fullName = getFullName(userResponseDto.getFirstName(), userResponseDto.getSecondName(), userResponseDto.getMiddleName());
         createHeaderRow(MANAGER, fullName, headerTableStyle, bodyStyle, managerNameRow);
 
-        createHeaderRow(POLL_NAME, POLL_NAME, headerTableStyle, bodyStyle, pollNameRow);
-        createHeaderRow(POLL_DESCRIPTION, POLL_DESCRIPTION, headerTableStyle, bodyStyle, pollDescriptionRow);
-        createHeaderRow(POLL_CREATED, POLL_CREATED, headerTableStyle, bodyStyle, pollCreatedRow);
-        createHeaderRow(POLL_DEADLINE, POLL_DEADLINE, headerTableStyle, bodyStyle, pollDeadlineRow);
-        createHeaderRow(POLL_STATUS, POLL_STATUS, headerTableStyle, bodyStyle, pollStatusRow);
+        createHeaderRow(POLL_NAME, pollInfo.getName(), headerTableStyle, bodyStyle, pollNameRow);
+        createHeaderRow(POLL_DESCRIPTION, pollInfo.getDescription(), headerTableStyle, bodyStyle, pollDescriptionRow);
+        createHeaderRow(POLL_CREATED, pollInfo.getRecCreateDttm().format(DateTimeFormatter.ISO_DATE), headerTableStyle, bodyStyle, pollCreatedRow);
+        createHeaderRow(POLL_DEADLINE, pollInfo.getDeadline().toString(), headerTableStyle, bodyStyle, pollDeadlineRow);
+        createHeaderRow(POLL_STATUS, pollInfo.getStatus(), headerTableStyle, bodyStyle, pollStatusRow);
 
         for (int i = 0; i < POLLS_COLUMNS.length; i++) {
             Cell headerCell = headerTableRow.createCell(i);
@@ -106,7 +106,7 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
 
         List<QuestionUsersInfoDto> questionInfos = resultDto.getQuestionInfos();
 
-        for (int i = 0, c = 5; i < questionInfos.size(); i++, c++) {
+        for (int i = 0, c = 9; i < questionInfos.size(); i++, c++) {
             Row row = sheet.createRow(c);
 
             QuestionUsersInfoDto usersInfoDto = questionInfos.get(i);
@@ -148,14 +148,14 @@ public class ReportDocumentPollResultBuilder implements ReportBuilder {
 
     }
 
-    private void createHeaderRow(String cellHeaderValue, String cellValue, CellStyle headerTableStyle, CellStyle bodyStyle, Row managerNameRow) {
-        Cell cell0 = managerNameRow.createCell(0);
+    private void createHeaderRow(String cellHeaderValue, String cellValue, CellStyle headerTableStyle, CellStyle bodyStyle, Row row) {
+        Cell cell0 = row.createCell(0);
         cell0.setCellValue(cellHeaderValue);
         cell0.setCellStyle(headerTableStyle);
-        Cell managerValueColumn = managerNameRow.createCell(1);
-        managerValueColumn.setCellValue(cellValue);
-        managerValueColumn.setCellStyle(bodyStyle);
-        Cell cell2 = managerNameRow.createCell(2);
+        Cell cell1 = row.createCell(1);
+        cell1.setCellValue(cellValue);
+        cell1.setCellStyle(bodyStyle);
+        Cell cell2 = row.createCell(2);
         cell2.setCellStyle(bodyStyle);
     }
 

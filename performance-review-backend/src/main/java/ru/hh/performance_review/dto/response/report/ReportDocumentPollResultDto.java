@@ -12,5 +12,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class ReportDocumentPollResultDto {
 
+    private PollDto pollInfo;
     private List<QuestionUsersInfoDto> questionInfos;
 }
